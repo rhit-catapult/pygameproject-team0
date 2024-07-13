@@ -32,7 +32,7 @@ class ui:
         if mouseDown: #boolean
             if mousey >= self.buyy and mousey:
                 if mousex >= self.buy1x-20 and mousey <= self.buy1x:
-
+                    return 1
 
 
 class path: # TODO: Make enemies move on the path
