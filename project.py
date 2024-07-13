@@ -30,8 +30,10 @@ class ui:
 
     def purchase(self,mousex,mousey,mouseDown):
         if mouseDown: #boolean
-        if mousey >= self.buyy and mousey
-        if mousex >= self.buy1x-20 and mousey <= self.buy1x
+            if mousey >= self.buyy and mousey:
+                if mousex >= self.buy1x-20 and mousey <= self.buy1x:
+
+
 
 class path: # TODO: Make enemies move on the path
     def __init__(self, screen):
