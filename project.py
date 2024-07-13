@@ -28,6 +28,14 @@ def main():
 
         # TODO: Add your project code
 
+        # TODO: Add the map, and UI
+
+        # TODO: LEARN TO TURN
+
+        # TODO: Add enemies, towers, projectiles
+
+        # TODO: Add lives, money, waves
+
         # don't forget the update, otherwise nothing will show up!
         pygame.display.update()
 
