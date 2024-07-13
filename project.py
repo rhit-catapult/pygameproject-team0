@@ -28,7 +28,7 @@ class ui:
         self.buyy = 900
     def draw(self):
 
-    def purchase(self,mousex,mousey,mouseDown):
+      def purchase(self,mousex,mousey,mouseDown):
         if mouseDown: #boolean
             if mousey >= self.buyy and mousey:
                 if mousex >= self.buy1x-20 and mousey <= self.buy1x:
