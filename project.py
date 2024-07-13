@@ -4,7 +4,7 @@ import random
 import time
 import math
 
-# MY TOKEN: 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
+
         # TODO: Add your project code
 
         # TODO: Add the map, and UI
