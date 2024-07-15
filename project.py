@@ -57,12 +57,18 @@ class enemy:
         self.y = self.y + self.speed_y
 
         self.x = self.x + self.speed_x
-        pass
+
+        while self.x != 500:
+            self.speed_x = 3
+            if self.x == 500:
+                self.speed_x = 0
+                self.speed_y = 3
+
 
     def draw(self):
         pygame.draw.circle(self.screen, (225, 100, 100), (self.x, self.y),
                  25)
-        pass
+
 
 def main():
     # turn on pygame
@@ -75,7 +81,7 @@ def main():
     # let's set the framerate
     clock = pygame.time.Clock()
     PTH = path(screen)
-    my_enemy = enemy(screen, (255, 255, 0), 50, 25, 50, 5, 5)
+    my_enemy = enemy(screen, (255, 255, 0), 5, 200, 50, 0, 0)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -89,13 +95,14 @@ def main():
 
         PTH.draw()
 
-        # don't forget the update, otherwise nothing will show up!
-        pygame.display.update()
-
-     # Move the enemy
+        # Move the enemy
         my_enemy.move()
 
         # Draw the enemy
         my_enemy.draw()
+
+
+        # don't forget the update, otherwise nothing will show up!
+        pygame.display.update()
 
 main()
