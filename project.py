@@ -55,14 +55,17 @@ class enemy:
 
     def move(self):
         self.y = self.y + self.speed_y
-
         self.x = self.x + self.speed_x
 
-        while self.x != 500:
-            self.speed_x = 3
-            if self.x == 500:
-                self.speed_x = 0
-                self.speed_y = 3
+        if self.x <= 470 and self.y == 200:
+            self.speed_x = 5
+        elif self.x >= 470 and self.y <= 470:
+            self.speed_x = 0
+            self.speed_y = 5
+        else :
+            self.speed_x = 0
+            self.speed_y = 0
+
 
 
     def draw(self):
