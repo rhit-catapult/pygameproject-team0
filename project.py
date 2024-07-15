@@ -43,7 +43,7 @@ class path: # TODO: Make enemies move on the path
         pygame.draw.line(self.screen, (0, 0, 255), (475, 180), (475, 500), 50)
         pygame.draw.line(self.screen, (0, 0, 255), (475, 475), (700, 475), 50)
         pygame.draw.line(self.screen, (0, 0, 255), (700, 475), (700, 200), 50)
-class Ball:
+class enemy:
     def __init__(self, screen, color, x, y, radius, speed_x, speed_y):
         self.screen = screen
         self.color = color
@@ -75,6 +75,7 @@ def main():
     # let's set the framerate
     clock = pygame.time.Clock()
     PTH = path(screen)
+    my_enemy = enemy(screen, (255, 255, 0), 50, 25, 50, 5, 5)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -90,5 +91,11 @@ def main():
 
         # don't forget the update, otherwise nothing will show up!
         pygame.display.update()
+
+     # Move the enemy
+        my_enemy.move()
+
+        # Draw the enemy
+        my_enemy.draw()
 
 main()
