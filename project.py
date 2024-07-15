@@ -61,12 +61,21 @@ class enemy:
 
         if self.x <= 470 and self.y == 200:
             self.speed_x = 5
-        elif self.x >= 470 and self.y <= 470:
+        elif 470 <= self.x <= 500 and self.y <= 475:
             self.speed_x = 0
             self.speed_y = 5
-        else :
-            self.speed_x = 0
+            print(self.y)
+        elif self.x <= 695 and self.y >= 470:
+            self.speed_x = 5
             self.speed_y = 0
+            print(self.y)
+        elif self.y >= 200:
+            self.speed_x = 0
+            self.speed_y = -5
+            print(self.y)
+            print(self.x)
+
+
 
 
 
