@@ -28,7 +28,7 @@ class ui:
         self.buyy = 900
     def draw(self):
 
-    def purchase(self,mousex,mousey,mouseDown):
+      def purchase(self,mousex,mousey,mouseDown):
         if mouseDown: #boolean
             if mousey >= self.buyy and mousey:
                 if mousex >= self.buy1x-20 and mousey <= self.buy1x:
@@ -43,6 +43,26 @@ class path: # TODO: Make enemies move on the path
         pygame.draw.line(self.screen, (0, 0, 255), (475, 180), (475, 500), 50)
         pygame.draw.line(self.screen, (0, 0, 255), (475, 475), (700, 475), 50)
         pygame.draw.line(self.screen, (0, 0, 255), (700, 475), (700, 200), 50)
+class Ball:
+    def __init__(self, screen, color, x, y, radius, speed_x, speed_y):
+        self.screen = screen
+        self.color = color
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.speed_x = speed_x
+        self.speed_y = speed_y
+
+    def move(self):
+        self.y = self.y + self.speed_y
+
+        self.x = self.x + self.speed_x
+        pass
+
+    def draw(self):
+        pygame.draw.circle(self.screen, (225, 100, 100), (self.x, self.y),
+                 25)
+        pass
 
 def main():
     # turn on pygame
