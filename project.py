@@ -41,10 +41,12 @@ class path: # TODO: Make enemies move on the path
     def __init__(self, screen):
         self.screen = screen
     def draw(self):
-        pygame.draw.line(self.screen, (0, 0, 255), (0, 200),(500, 200),50)
-        pygame.draw.line(self.screen, (0, 0, 255), (475, 180), (475, 500), 50)
-        pygame.draw.line(self.screen, (0, 0, 255), (475, 475), (700, 475), 50)
-        pygame.draw.line(self.screen, (0, 0, 255), (700, 475), (700, 200), 50)
+        pygame.draw.line(self.screen, (90, 140, 60), (0, 200),(500, 200),50)
+        pygame.draw.line(self.screen, (90, 140, 60), (475, 180), (475, 500), 50)
+        pygame.draw.line(self.screen, (90, 140, 60), (475, 475), (725, 475), 50)
+        pygame.draw.line(self.screen, (90, 140, 60), (700, 475), (700, 176), 50)
+        pygame.draw.line(self.screen, (90, 140, 60), (700, 200), (1025, 200), 50)
+        pygame.draw.line(self.screen, (90, 140, 60), (1000, 200), (1000, 0), 50)
 class enemy:
     def __init__(self, screen, color, x, y, radius, speed_x, speed_y):
         self.screen = screen
@@ -60,20 +62,22 @@ class enemy:
         self.x = self.x + self.speed_x
 
         if self.x <= 470 and self.y == 200:
-            self.speed_x = 5
-        elif 470 <= self.x <= 500 and self.y <= 475:
+            self.speed_x = 2
+        elif 475 <= self.x <= 500 and self.y <= 470:
             self.speed_x = 0
-            self.speed_y = 5
-            print(self.y)
-        elif self.x <= 695 and self.y >= 470:
-            self.speed_x = 5
+            self.speed_y = 2
+        elif self.x <= 700 and self.y >= 475:
+            self.speed_x = 2
             self.speed_y = 0
-            print(self.y)
-        elif self.y >= 200:
+        elif self.y >= 475 and self.x <= 1000:
             self.speed_x = 0
-            self.speed_y = -5
-            print(self.y)
-            print(self.x)
+            self.speed_y = -2
+        elif self.y <= 200 and self.x < 1000:
+            self.speed_x = 2
+            self.speed_y = 0
+        elif self.x >= 1000 and self.y >= 200:
+            self.speed_x = 0
+            self.speed_y = -2
 
 
 
@@ -81,7 +85,7 @@ class enemy:
 
 
     def draw(self):
-        pygame.draw.circle(self.screen, (225, 100, 100), (self.x, self.y),
+        pygame.draw.circle(self.screen, (225,75, 75), (self.x, self.y),
                  25)
 class beamTurret:
     def __init__(self,screen,x,y,angle,fireState,fa,fc):
@@ -122,7 +126,7 @@ def main():
     UI = ui(screen)
     ion = 0
     test = beamTurret(screen, 50, 50,0.0,False,0,0)
-    my_enemy = enemy(screen, (255, 255, 0), 5, 200, 50, 0, 0)
+    my_enemy = enemy(screen, (0, 0, 0), 5, 200, 50, 0, 0)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
