@@ -206,7 +206,7 @@ def main():
         PTH.draw()
 
 
-
+##
         key = pygame.key.get_pressed()
         if key[pygame.K_SPACE]:
             test.targetEnemy(activeEnemies)
