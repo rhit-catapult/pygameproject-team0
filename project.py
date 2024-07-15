@@ -38,74 +38,102 @@ class enemy:
         elif 470 <= self.x <= 500 and self.y <= 475:
             self.speed_x = 0
             self.speed_y = 5
-            print(self.y)
+
         elif self.x <= 695 and self.y >= 470:
             self.speed_x = 5
             self.speed_y = 0
-            print(self.y)
+
         elif self.y >= 200:
             self.speed_x = 0
             self.speed_y = -5
-            print(self.y)
-            print(self.x)
+        self.x = self.x + self.speed_x
+        self.y = self.y + self.speed_y
 
 
 
 
     def draw(self):
-        pygame.draw.circle(self.screen, (225, 100, 100), (self.x, self.y),
+        pygame.draw.circle(self.screen, (100, 100, 100), (self.x, self.y),
                  25)
 class beamTurret:
-    def __init__(self,screen,x,y,angle,fireState):
+    def __init__(self,screen,x,y,angle):
         self.screen =screen
         self.x =x
         self.y = y
         self.angle = angle
-        self.clock = pygame.time.Clock()
-        self.fireState = fireState#True/False
-        self.image = pygame.image.load('TowerDef_BeamTurret.png')
-        self.baseImage = pygame.image.load('TowerDef_BeamTurret.png')
+        self.image = pygame.image.load('TowerDef_BeamTurret - Copy - Copy.png')
+        self.baseImage = pygame.image.load('TowerDef_BeamTurret - Copy - Copy.png')
         self.validTarget = []
         self.targetnumber =0
+        self.targetx=0
+        self.targety=0
+        self.newAngle = self.angle
 
     def draw(self):
-        pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),10)
+        pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
         self.screen.blit(self.image,(self.x-(self.image.get_width()/2), self.y-(self.image.get_height()/2)))
     def turn(self, angle):
-        self.image = pygame.transform.rotate(self.baseImage,angle)
-        self.angle = angle
+        if angle < 10:
+            self.newAngle = math.degrees(angle)
+        self.image = pygame.transform.rotate(self.baseImage, self.newAngle)
+
     def shoot(self):
-        pygame.draw.line(self.screen,(255,100,100), ((((self.y + (math.sin(math.radians(self.angle)))*-10)),
-                         (self.x+(math.cos(math.radians(self.angle)))*-10))),
-                         (((self.y + (math.sin(math.radians(self.angle)))*-600)),
-                         (self.x+(math.cos(math.radians(self.angle)))*-600)),20)
+        print(self.angle)
+        pygame.draw.line (self.screen,(255,100,100), (self.x, self.y),
+                          (
+                              (self.x + (math.cos(self.angle)*600)),
+                              (self.y + (math.sin(self.angle)*600))
+                          ),
+                          20)
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
         self.targetnumber = 0
         for enemy in active:
             if distance((self.x,self.y),(enemy.x,enemy.y)) <=300:
                 self.validTarget.append(enemy)
-        while len(self.validTarget)>1:
-            for enemy in self.validTarget:
-                if enemy.dist < self.targetnumber:
-                    self.validTarget.remove(enemy)
-            self.targetnumber+=1
-        if len(self.validTarget)<0:
-            for enemy in active:
-                if distance((self.x, self.y), (enemy.x, enemy.y)) <= 300 and enemy.dist <= self.targetnumber:
-                    self.validTarget.append(enemy)
-            r = random.randint(0, (len(self.validTarget)-1))
-            tar = self.validTarget[r]
-            self.angle = math.atan(tar.y * tar.x)
-            return True
+        if len(self.validTarget)==0:
+            return False
         else:
-            tar = self.validTarget[0]
-            self.angle = math.atan(tar.y * tar.x)
+            while len(self.validTarget)>1:
+                for enemy in self.validTarget:
+                    if enemy.dist < self.targetnumber:
+                        self.validTarget.remove(enemy)
+                self.targetnumber+=1
+            if len(self.validTarget)<=0:
+                for enemy in active:
+                    if distance((self.x, self.y), (enemy.x, enemy.y)) <= 300 and enemy.dist <= self.targetnumber:
+                        self.validTarget.append(enemy)
+                r = random.randint(0, (len(self.validTarget)-1))
+                tar = self.validTarget[r]
+                self.targetx = tar.x
+                self.targety = tar.y
+                self.angle = math.atan(tar.y / tar.x)
+                self.turn(self.angle)
+                return True
+            else:
+                tar = self.validTarget[0]
+                self.targetx = tar.x
+                self.targety = tar.y
+                print(tar.x, tar.y)
+                if tar.y >= self.y:
+                    self.angle = math.acos((tar.x-self.x)/(distance((self.x,self.y),(tar.x,tar.y))))
+                else:
+                    self.angle = -1*math.acos((tar.x - self.x) / (distance((self.x, self.y), (tar.x, tar.y))))
+
+                self.turn((self.angle*-1))
+
             return True
-    def hitEnemy(self):
-        hitbox = pygame.draw.line(self.screen,(255,100,100), ((((self.y + (math.sin(math.radians(self.angle)))*-10)),
-                         (self.x+(math.cos(math.radians(self.angle)))*-10))),
-                         (((self.y + (math.sin(math.radians(self.angle)))*-600)),
-                         (self.x+(math.cos(math.radians(self.angle)))*-600)),20)
+    def hitEnemy(self,enemy):
+        hitbox = pygame.draw.line (self.screen,(255,100,100), (self.x, self.y),
+                          (
+                              (self.x + (math.cos(self.angle)*600)),
+                              (self.y + (math.sin(self.angle)*600))
+                          ),
+                          20)
+
+        if hitbox.collidepoint(enemy.x, enemy.y):
+            print("HIT")
+        return hitbox.collidepoint(enemy.x, enemy.y)
+
 
 def distance(point1, point2):
     point1_x = point1[0]
@@ -121,7 +149,7 @@ class waveSpawn:
     def spawns(self,enemyTotal):
         if self.state:
             for _ in range(enemyTotal):
-                Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 0, 0)
+                Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 5, 0)
                 self.wavespawn.append(Enemy)
     def getList(self):
         return self.wavespawn
@@ -179,24 +207,21 @@ def main():
     PTH = path(screen)
     gamestate = True
     waves = 0
-    activeEnemies = []
+
     UI = ui(screen)
     ion = 0
-    test = beamTurret(screen, 50, 50,0.0,False)
+    test = beamTurret(screen, 500, 300,0.0)
     spawns = waveSpawn(screen, gamestate)
+    activeEnemies = spawns.getList()
+
     #my_enemy = enemy(screen, (255, 255, 0), 5, 200, 50, 0, 0)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
         clock.tick(60)
-        waves +=1
-        spawns.spawns(4)
-        activeEnemies = spawns.getList()
-        gamestate = False
-        for enemy in activeEnemies:
-            enemy.move()
-            enemy.draw()
+
+
 
         # TODO: Add you events code
 
@@ -206,17 +231,27 @@ def main():
         PTH.draw()
 
 
-##
+        waves +=1
+        spawns.spawns(4)
+        activeEnemies = spawns.getList()
+        gamestate = False
+        for enemy1 in activeEnemies:
+            enemy1.move()
+            enemy1.draw()
         key = pygame.key.get_pressed()
-        if key[pygame.K_SPACE]:
-            test.targetEnemy(activeEnemies)
+        #if key[pygame.K_SPACE]:
+
+        if test.targetEnemy(activeEnemies):
             test.shoot()
-        if key[pygame.K_RIGHT]:
-            test.turn(ion)
-            ion += 10
-        if key[pygame.K_LEFT]:
-            test.turn(ion)
-            ion -= 10
+            for enemy1 in activeEnemies:
+                test.hitEnemy(enemy1)
+
+        #if key[pygame.K_RIGHT]:
+        #    test.turn(ion)
+        #    ion += 10
+        #if key[pygame.K_LEFT]:
+        #    test.turn(ion)
+        #    ion -= 10
 
         UI.draw()
 
