@@ -19,7 +19,7 @@ lives = 100
 money = 500
 
 class enemy:
-    def __init__(self, screen, color, x, y, radius, speed_x, speed_y,health):
+    def __init__(self, screen, color, x, y, radius, speed_x, speed_y,health,speed):
         self.dist = 0
         self.screen = screen
         self.color = color
@@ -29,31 +29,32 @@ class enemy:
         self.speed_x = speed_x
         self.speed_y = speed_y
         self.health = health
+        self.speed = speed
 
 
 
     def move(self):
         self.y = self.y + self.speed_y
         self.x = self.x + self.speed_x
-        self.dist += 1
+        self.dist += self.speed
 
         if self.x <= 470 and self.y == 200:
-            self.speed_x = 2
+            self.speed_x = self.speed
         elif 475 <= self.x <= 500 and self.y <= 470:
             self.speed_x = 0
-            self.speed_y = 2
+            self.speed_y = self.speed
         elif self.x <= 700 and self.y >= 475:
-            self.speed_x = 2
+            self.speed_x = self.speed
             self.speed_y = 0
         elif self.y >= 475 and self.x <= 1000:
             self.speed_x = 0
-            self.speed_y = -2
+            self.speed_y = -self.speed
         elif self.y <= 200 and self.x < 1000:
-            self.speed_x = 2
+            self.speed_x = self.speed
             self.speed_y = 0
         elif self.x >= 1000 and self.y >= 200:
             self.speed_x = 0
-            self.speed_y = -2
+            self.speed_y = -self.speed
     def damage(self):
         self.health -=.5
     def deathCheck(self):
@@ -91,8 +92,8 @@ class beamTurret:
 
         pygame.draw.line (self.screen,(255,100,100), (self.x, self.y),
                           (
-                              (self.x + (math.cos(self.angle)*600)),
-                              (self.y + (math.sin(self.angle)*600))
+                              (self.x + (math.cos(self.angle)*300)),
+                              (self.y + (math.sin(self.angle)*300))
                           ),
                           20)
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
@@ -128,8 +129,8 @@ class beamTurret:
     def hitEnemy(self,enemy):
         hitbox = pygame.draw.line (self.screen,(255,100,100), (self.x, self.y),
                           (
-                              (self.x + (math.cos(self.angle)*600)),
-                              (self.y + (math.sin(self.angle)*600))
+                              (self.x + (math.cos(self.angle)*300)),
+                              (self.y + (math.sin(self.angle)*300))
                           ),
                           20)
 
@@ -155,7 +156,7 @@ class waveSpawn:
             for f in range(enemyTotal):
                 if time.time()-self.lastspawntime >= tim:
 
-                    Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 5, 0,50)
+                    Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 5, 0,50,2)
                     self.wavespawn.append(Enemy)
                     f+=1
                     self.lastspawntime = time.time()
@@ -286,4 +287,10 @@ def main():
         # don't forget the update, otherwise nothing will show up!
         pygame.display.update()
 
+
 main()
+
+
+
+
+
