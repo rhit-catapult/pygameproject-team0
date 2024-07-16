@@ -19,7 +19,7 @@ lives = 100
 money = 500
 
 class enemy:
-    def __init__(self, screen, color, x, y, radius, speed_x, speed_y,):
+    def __init__(self, screen, color, x, y, radius, speed_x, speed_y,health):
         self.dist = 0
         self.screen = screen
         self.color = color
@@ -28,33 +28,43 @@ class enemy:
         self.radius = radius
         self.speed_x = speed_x
         self.speed_y = speed_y
+        self.health = health
 
 
 
     def move(self):
-        self.dist +=1
-        if self.x <= 470 and self.y == 200:
-            self.speed_x = 5
-        elif 470 <= self.x <= 500 and self.y <= 475:
-            self.speed_x = 0
-            self.speed_y = 5
-
-        elif self.x <= 695 and self.y >= 470:
-            self.speed_x = 5
-            self.speed_y = 0
-
-        elif self.y >= 200:
-            self.speed_x = 0
-            self.speed_y = -5
-        self.x = self.x + self.speed_x
         self.y = self.y + self.speed_y
+        self.x = self.x + self.speed_x
+        self.dist += 1
 
-
-
+        if self.x <= 470 and self.y == 200:
+            self.speed_x = 2
+        elif 475 <= self.x <= 500 and self.y <= 470:
+            self.speed_x = 0
+            self.speed_y = 2
+        elif self.x <= 700 and self.y >= 475:
+            self.speed_x = 2
+            self.speed_y = 0
+        elif self.y >= 475 and self.x <= 1000:
+            self.speed_x = 0
+            self.speed_y = -2
+        elif self.y <= 200 and self.x < 1000:
+            self.speed_x = 2
+            self.speed_y = 0
+        elif self.x >= 1000 and self.y >= 200:
+            self.speed_x = 0
+            self.speed_y = -2
+    def damage(self):
+        self.health -=.5
+    def deathCheck(self):
+        if self.health <=0:
+            return True
 
     def draw(self):
         pygame.draw.circle(self.screen, (100, 100, 100), (self.x, self.y),
                  25)
+    def getDist(self):
+        return self.dist
 class beamTurret:
     def __init__(self,screen,x,y,angle):
         self.screen =screen
@@ -78,7 +88,7 @@ class beamTurret:
         self.image = pygame.transform.rotate(self.baseImage, self.newAngle)
 
     def shoot(self):
-        print(self.angle)
+
         pygame.draw.line (self.screen,(255,100,100), (self.x, self.y),
                           (
                               (self.x + (math.cos(self.angle)*600)),
@@ -86,41 +96,34 @@ class beamTurret:
                           ),
                           20)
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
-        self.targetnumber = 0
         for enemy in active:
             if distance((self.x,self.y),(enemy.x,enemy.y)) <=300:
                 self.validTarget.append(enemy)
         if len(self.validTarget)==0:
             return False
         else:
-            while len(self.validTarget)>1:
-                for enemy in self.validTarget:
-                    if enemy.dist < self.targetnumber:
-                        self.validTarget.remove(enemy)
-                self.targetnumber+=1
-            if len(self.validTarget)<=0:
-                for enemy in active:
-                    if distance((self.x, self.y), (enemy.x, enemy.y)) <= 300 and enemy.dist <= self.targetnumber:
-                        self.validTarget.append(enemy)
-                r = random.randint(0, (len(self.validTarget)-1))
-                tar = self.validTarget[r]
-                self.targetx = tar.x
-                self.targety = tar.y
-                self.angle = math.atan(tar.y / tar.x)
-                self.turn(self.angle)
-                return True
+            self.validTarget.sort(key=lambda t: t.getDist())
+
+
+            tar = self.validTarget[0]
+            self.targetx = tar.x
+            self.targety = tar.y
+
+            if tar.y >= self.y:
+                self.angle = math.acos((tar.x-self.x)/(distance((self.x,self.y),(tar.x,tar.y))))
             else:
-                tar = self.validTarget[0]
-                self.targetx = tar.x
-                self.targety = tar.y
-                print(tar.x, tar.y)
-                if tar.y >= self.y:
-                    self.angle = math.acos((tar.x-self.x)/(distance((self.x,self.y),(tar.x,tar.y))))
-                else:
-                    self.angle = -1*math.acos((tar.x - self.x) / (distance((self.x, self.y), (tar.x, tar.y))))
+                self.angle = -1*math.acos((tar.x - self.x) / (distance((self.x, self.y), (tar.x, tar.y))))
 
-                self.turn((self.angle*-1))
+            self.turn((self.angle*-1))
 
+            if distance((self.x,self.y),(tar.x,tar.y))>300 or tar.health <= 0:
+                tar = None
+                self.targety = None
+                self.targetx = None
+                self.targetnumber = 0
+                return False
+            self.targetnumber = 0
+            print((self.targetx, self.targety))
             return True
     def hitEnemy(self,enemy):
         hitbox = pygame.draw.line (self.screen,(255,100,100), (self.x, self.y),
@@ -130,8 +133,6 @@ class beamTurret:
                           ),
                           20)
 
-        if hitbox.collidepoint(enemy.x, enemy.y):
-            print("HIT")
         return hitbox.collidepoint(enemy.x, enemy.y)
 
 
@@ -146,11 +147,20 @@ class waveSpawn:
         self.screen = screen
         self.wavespawn = []
         self.state = state
-    def spawns(self,enemyTotal):
+        self.lastspawntime = 0
+    def spawns(self,enemyTotal,tim):
+        time.time()
+        f = 0
         if self.state:
-            for _ in range(enemyTotal):
-                Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 5, 0)
-                self.wavespawn.append(Enemy)
+            for f in range(enemyTotal):
+                if time.time()-self.lastspawntime >= tim:
+
+                    Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 5, 0,50)
+                    self.wavespawn.append(Enemy)
+                    f+=1
+                    self.lastspawntime = time.time()
+
+
     def getList(self):
         return self.wavespawn
     def updateState(self,state):
@@ -177,10 +187,12 @@ class path: # TODO: Make enemies move on the path
     def __init__(self, screen):
         self.screen = screen
     def draw(self):
-        pygame.draw.line(self.screen, (0, 0, 255), (0, 200),(500, 200),50)
-        pygame.draw.line(self.screen, (0, 0, 255), (475, 180), (475, 500), 50)
-        pygame.draw.line(self.screen, (0, 0, 255), (475, 475), (700, 475), 50)
-        pygame.draw.line(self.screen, (0, 0, 255), (700, 475), (700, 200), 50)
+        pygame.draw.line(self.screen, (90, 140, 60), (0, 200), (500, 200), 50)
+        pygame.draw.line(self.screen, (90, 140, 60), (475, 180), (475, 500), 50)
+        pygame.draw.line(self.screen, (90, 140, 60), (475, 475), (725, 475), 50)
+        pygame.draw.line(self.screen, (90, 140, 60), (700, 475), (700, 176), 50)
+        pygame.draw.line(self.screen, (90, 140, 60), (700, 200), (1025, 200), 50)
+        pygame.draw.line(self.screen, (90, 140, 60), (1000, 200), (1000, 0), 50)
 
 
 
@@ -210,7 +222,7 @@ def main():
 
     UI = ui(screen)
     ion = 0
-    test = beamTurret(screen, 500, 300,0.0)
+    test = beamTurret(screen, 500, 200,0.0)
     spawns = waveSpawn(screen, gamestate)
     activeEnemies = spawns.getList()
 
@@ -232,19 +244,30 @@ def main():
 
 
         waves +=1
-        spawns.spawns(4)
+        spawns.spawns(4,1)
+
         activeEnemies = spawns.getList()
-        gamestate = False
+        if len(activeEnemies)==4:
+            gamestate = False
+        else:
+            gamestate = True
+        spawns.updateState(gamestate)
         for enemy1 in activeEnemies:
             enemy1.move()
+            print(enemy1.health)
+            if distance((enemy1.x, enemy1.y),(test.x,test.y))<300:
+                if test.hitEnemy(enemy1):
+                    enemy1.damage()
+
+            if enemy1.deathCheck():
+                activeEnemies.remove(enemy1)
             enemy1.draw()
         key = pygame.key.get_pressed()
         #if key[pygame.K_SPACE]:
 
         if test.targetEnemy(activeEnemies):
             test.shoot()
-            for enemy1 in activeEnemies:
-                test.hitEnemy(enemy1)
+
 
         #if key[pygame.K_RIGHT]:
         #    test.turn(ion)
