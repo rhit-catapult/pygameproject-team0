@@ -224,9 +224,10 @@ def main():
 
 
         waves +=1
-        spawns.spawns(4)
+        spawns.spawns(1)
         activeEnemies = spawns.getList()
         gamestate = False
+        spawns.updateState(gamestate)
         for enemy1 in activeEnemies:
             enemy1.move()
             enemy1.draw()
