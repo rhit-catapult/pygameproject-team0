@@ -342,13 +342,13 @@ def main():
             last_wave_time = time.time()
             enemies_left = 10
             if waves == 1:
-                enemies_left = 10
+                enemies_left = 5
             elif waves == 2:
-                enemies_left = 15
+                enemies_left = 10
             elif waves == 3:
-                enemies_left = 20
+                enemies_left = 15
             elif waves == 4:
-                enemies_left = 25
+                enemies_left = 20
 
         if waves == 1 and enemies_left > 0:
             if spawns.spawns(2, 10):
