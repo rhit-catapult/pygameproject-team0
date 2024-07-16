@@ -15,8 +15,7 @@ import math
         # TODO: Add enemies, towers, projectiles
 
         # TODO: Add lives, money, waves
-lives = 100
-money = 500
+
 
 class enemy:
     def __init__(self, screen, color, x, y, radius, speed_x, speed_y,health,speed):
@@ -30,7 +29,7 @@ class enemy:
         self.speed_y = speed_y
         self.health = health
         self.speed = speed
-
+        self.name = random.randint(0,500)
 
 
     def move(self):
@@ -55,10 +54,18 @@ class enemy:
         elif self.x >= 1000 and self.y >= 200:
             self.speed_x = 0
             self.speed_y = -self.speed
-    def damage(self):
-        self.health -=.5
+    def offscreen(self):
+        if self.y < 0:
+            return True
+    def offscreen2(self):
+        if self.y < 0:
+            return self.health
+    def damage(self,dam):
+        self.health -=dam
+        return dam
     def deathCheck(self):
         if self.health <=0:
+            self.dist = -1
             return True
 
     def draw(self):
@@ -97,13 +104,14 @@ class beamTurret:
                           ),
                           20)
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
+        self.validTarget.clear()
         for enemy in active:
             if distance((self.x,self.y),(enemy.x,enemy.y)) <=300:
                 self.validTarget.append(enemy)
         if len(self.validTarget)==0:
             return False
         else:
-            self.validTarget.sort(key=lambda t: t.getDist())
+            self.validTarget.sort(key=lambda t: t.getDist(),reverse=True)
 
 
             tar = self.validTarget[0]
@@ -116,15 +124,7 @@ class beamTurret:
                 self.angle = -1*math.acos((tar.x - self.x) / (distance((self.x, self.y), (tar.x, tar.y))))
 
             self.turn((self.angle*-1))
-
-            if distance((self.x,self.y),(tar.x,tar.y))>300 or tar.health <= 0:
-                tar = None
-                self.targety = None
-                self.targetx = None
-                self.targetnumber = 0
-                return False
-            self.targetnumber = 0
-            print((self.targetx, self.targety))
+            print(tar.name)
             return True
     def hitEnemy(self,enemy):
         hitbox = pygame.draw.line (self.screen,(255,100,100), (self.x, self.y),
@@ -149,17 +149,16 @@ class waveSpawn:
         self.wavespawn = []
         self.state = state
         self.lastspawntime = 0
-    def spawns(self,enemyTotal,tim):
+    def spawns(self,tim, health):
         time.time()
         f = 0
-        if self.state:
-            for f in range(enemyTotal):
-                if time.time()-self.lastspawntime >= tim:
-
-                    Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 5, 0,50,2)
-                    self.wavespawn.append(Enemy)
-                    f+=1
-                    self.lastspawntime = time.time()
+        if time.time() - self.lastspawntime >= tim:
+            Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 5, 0, 50, 2)
+            self.wavespawn.append(Enemy)
+            Enemy.health = health
+            self.lastspawntime = time.time()
+            return True
+        return False
 
 
     def getList(self):
@@ -174,14 +173,17 @@ class ui:
         self.buy1x = 100
         self.buy2x = 400
         self.buy3x = 700
-        self.buyy = 900
+        self.buyy = 550
+        self.image1 = pygame.image.load('TowerDef_BeamTurret.png')
     def draw(self):
-        pygame.draw.rect(self.screen, (0,0,0),(0,555,1080,75))
+        pygame.draw.rect(self.screen, (0,0,0),(0,525,1080,150))
+        pygame.draw.circle(self.screen,(125,125,125),(self.buy1x,self.buyy),24)
+        self.screen.blit(self.image1,(self.buy1x-(self.image1.get_width()/2), self.buyy-(self.image1.get_height()/2)))
 
     def purchase(self,mousex,mousey,mouseDown):
         if mouseDown: #boolean
-            if mousey >= self.buyy and mousey:
-                if mousex >= self.buy1x-20 and mousey <= self.buy1x:
+            if mousey >= self.buyy-10 and mousey <= self.buyy +10:
+                if mousex >= self.buy1x-10 and mousey <= self.buy1x+10:
                     return 1
 
 class path: # TODO: Make enemies move on the path
@@ -220,13 +222,17 @@ def main():
     PTH = path(screen)
     gamestate = True
     waves = 0
-
+    totalSpawns = 0
+    last_wave_time = 0
+    enemies_left = 0
+    lives = 500
+    money = 500
+    targetpurchase =0
     UI = ui(screen)
-    ion = 0
-    test = beamTurret(screen, 500, 200,0.0)
+    towers = []
     spawns = waveSpawn(screen, gamestate)
     activeEnemies = spawns.getList()
-
+    test = beamTurret(screen, 500, 300, 0.0)
     #my_enemy = enemy(screen, (255, 255, 0), 5, 200, 50, 0, 0)
     while True:
         for event in pygame.event.get():
@@ -246,38 +252,72 @@ def main():
 
         waves +=1
         spawns.spawns(4,1)
-
+        print(money)
         activeEnemies = spawns.getList()
         if len(activeEnemies)==4:
             gamestate = False
         else:
             gamestate = True
         spawns.updateState(gamestate)
+        if test.targetEnemy(activeEnemies):
+            test.shoot()
         for enemy1 in activeEnemies:
             enemy1.move()
-            print(enemy1.health)
+
             if distance((enemy1.x, enemy1.y),(test.x,test.y))<300:
                 if test.hitEnemy(enemy1):
-                    enemy1.damage()
+                    money += enemy1.damage(.5)
+            if enemy1.offscreen():
+                activeEnemies.remove(enemy1)
+                lives -= enemy1.offscreen2()
 
             if enemy1.deathCheck():
                 activeEnemies.remove(enemy1)
             enemy1.draw()
         key = pygame.key.get_pressed()
-        #if key[pygame.K_SPACE]:
-
-        if test.targetEnemy(activeEnemies):
-            test.shoot()
 
 
-        #if key[pygame.K_RIGHT]:
-        #    test.turn(ion)
-        #    ion += 10
-        #if key[pygame.K_LEFT]:
-        #    test.turn(ion)
-        #    ion -= 10
+
+        if time.time() - last_wave_time > 3 and enemies_left <= 0:
+            waves +=1
+            last_wave_time = time.time()
+            enemies_left = 10
+            if waves == 1:
+                enemies_left = 10
+            elif waves == 2:
+                enemies_left = 15
+            elif waves == 3:
+                enemies_left = 20
+            elif waves == 4:
+                enemies_left = 25
+
+        if waves == 1 and enemies_left > 0:
+            if spawns.spawns(2, 10):
+                enemies_left -= 1
+
+        if waves == 2 and enemies_left > 0:
+            if spawns.spawns(2, 30):
+                enemies_left -= 1
+
+        if waves == 3 and enemies_left > 0:
+            if spawns.spawns(1, 50):
+                enemies_left -= 1
+
+        if waves == 4 and enemies_left > 0:
+            if spawns.spawns(1, 65):
+                enemies_left -= 1
+
+        if waves == 5 and enemies_left > 0:
+            if spawns.spawns(.8, 80):
+                enemies_left -= 1
+
+
 
         UI.draw()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            clickposx,clickposy = event.pos
+            if clickposy >= 530:
+                x = UI.purchase(clickposx,clickposy,True)
 
         #    #TODO: MAKE UNIQUE WAVES
 
