@@ -17,6 +17,7 @@ import math
         # TODO: Add lives, money, waves
 lives = 100
 money = 500
+waves = 10
 
 class enemy:
     def __init__(self, screen, color, x, y, radius, speed_x, speed_y,health,speed):
@@ -149,17 +150,24 @@ class waveSpawn:
         self.wavespawn = []
         self.state = state
         self.lastspawntime = 0
-    def spawns(self,enemyTotal,tim):
+    def spawns(self,tim, health):
         time.time()
         f = 0
-        if self.state:
-            for f in range(enemyTotal):
-                if time.time()-self.lastspawntime >= tim:
-
-                    Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 5, 0,50,2)
-                    self.wavespawn.append(Enemy)
-                    f+=1
-                    self.lastspawntime = time.time()
+        if time.time() - self.lastspawntime >= tim:
+            Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 5, 0, 50, 2)
+            self.wavespawn.append(Enemy)
+            Enemy.health = health
+            self.lastspawntime = time.time()
+            return True
+        return False
+        # if self.state:
+        #     for f in range(enemyTotal):
+        #         if time.time()-self.lastspawntime >= tim:
+        #
+        #             Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 5, 0,50,2)
+        #             self.wavespawn.append(Enemy)
+        #             f+=1
+        #             self.lastspawntime = time.time()
 
 
     def getList(self):
@@ -226,7 +234,8 @@ def main():
     test = beamTurret(screen, 500, 200,0.0)
     spawns = waveSpawn(screen, gamestate)
     activeEnemies = spawns.getList()
-
+    last_wave_time = 0
+    enemies_left = 0
     #my_enemy = enemy(screen, (255, 255, 0), 5, 200, 50, 0, 0)
     while True:
         for event in pygame.event.get():
@@ -244,8 +253,7 @@ def main():
         PTH.draw()
 
 
-        waves +=1
-        spawns.spawns(4,1)
+
 
         activeEnemies = spawns.getList()
         if len(activeEnemies)==4:
@@ -276,6 +284,39 @@ def main():
         #if key[pygame.K_LEFT]:
         #    test.turn(ion)
         #    ion -= 10
+
+        if time.time() - last_wave_time > 3 and enemies_left <= 0:
+            waves +=1
+            last_wave_time = time.time()
+            enemies_left = 10
+            if waves == 1:
+                enemies_left = 10
+            elif waves == 2:
+                enemies_left = 15
+            elif waves == 3:
+                enemies_left = 20
+            elif waves == 4:
+                enemies_left = 25
+
+        if waves == 1 and enemies_left > 0:
+            if spawns.spawns(2, 10):
+                enemies_left -= 1
+
+        if waves == 2 and enemies_left > 0:
+            if spawns.spawns(2, 30):
+                enemies_left -= 1
+
+        if waves == 3 and enemies_left > 0:
+            if spawns.spawns(1, 50):
+                enemies_left -= 1
+
+        if waves == 4 and enemies_left > 0:
+            if spawns.spawns(1, 65):
+                enemies_left -= 1
+
+        if waves == 5 and enemies_left > 0:
+            if spawns.spawns(.8, 80):
+                enemies_left -= 1
 
         UI.draw()
 
