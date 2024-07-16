@@ -86,6 +86,7 @@ class beamTurret:
         self.targetx=0
         self.targety=0
         self.newAngle = self.angle
+        self.placed = False
 
     def draw(self):
         pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
@@ -135,8 +136,31 @@ class beamTurret:
                           20)
 
         return hitbox.collidepoint(enemy.x, enemy.y)
+    def touchingMouse(self):
+        hitbox = pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
+        clickposx,clickposy = pygame.mouse.get_pos()
+        if  hitbox.collidepoint(clickposx,clickposy):
+            surface = pygame.Surface((600, 600), pygame.SRCALPHA)
+            pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 300)
+            self.screen.blit(surface,(self.x-300,self.y-300))
+
+class turretLists():
+    def __init__(self,screen):
+        self.screen = screen
+        self.beamTurrets = []
+        self.rocketTurrets = []
+        self.sniperTurrets = []
+        self.minigunTurrets = []
+    def placeBeam(self,x,y):
+        beam = beamTurret(self.screen,x,y,0)
+        self.beamTurrets.append(beam)
 
 
+def updateMouse():
+    if pygame.mouse.get_pressed()[0]:
+        return True
+    else:
+        return False
 def distance(point1, point2):
     point1_x = point1[0]
     point2_x = point2[0]
@@ -175,16 +199,41 @@ class ui:
         self.buy3x = 700
         self.buyy = 550
         self.image1 = pygame.image.load('TowerDef_BeamTurret.png')
-    def draw(self):
+    def draw(self,lives,money,wave):
         pygame.draw.rect(self.screen, (0,0,0),(0,525,1080,150))
         pygame.draw.circle(self.screen,(125,125,125),(self.buy1x,self.buyy),24)
         self.screen.blit(self.image1,(self.buy1x-(self.image1.get_width()/2), self.buyy-(self.image1.get_height()/2)))
+        font = pygame.font.SysFont("Arial", 20)
+        pygame.draw.rect(self.screen, (155, 155, 155),(0,0,100,75))
 
-    def purchase(self,mousex,mousey,mouseDown):
-        if mouseDown: #boolean
-            if mousey >= self.buyy-10 and mousey <= self.buyy +10:
-                if mousex >= self.buy1x-10 and mousey <= self.buy1x+10:
-                    return 1
+        str1 = "Lives: "+str(lives)
+        str2 = "Money: "+str(money)
+        str3 = "Wave: "+str(wave)
+        text1 = font.render(str1,True,(255,255,255))
+        text2 = font.render(str2,True,(255,255,255))
+        text3 = font.render(str3,True,(255,255,255))
+        self.screen.blit(text1, (0,0))
+        self.screen.blit(text2, (0,25))
+        self.screen.blit(text3, (0,50))
+    #def purchase(self,clickposx,clickposy,mouseDown,money):
+    #    if mouseDown: #boolean
+    #        if clickposy >= self.buyy-10 and clickposy <= self.buyy +10:
+    #            if clickposx >= self.buy1x-10 and clickposx <= self.buy1x+10:
+    #                image1 = pygame.image.load('TowerDef_BeamTurret - Copy - Copy.png')
+    #                font = pygame.font.SysFont("Arial",30)
+    #
+    #                text = font.render("click on desired position, or back to the shop to deselect",True,(0,0,0))
+    #                buffer = time.time() + 1
+    #                while mouseDown and buffer>=time.time():
+    #                    pygame.draw.circle(self.screen, (155,155,155, 100), (clickposx, clickposy), 20)
+    #                    self.screen.blit(image1,(clickposx,clickposy))
+    #                    self.screen.blit(text,(500,0))
+    #                    mouseDown = self.updateMouse()
+    #                    pygame.display.update()
+
+
+
+
 
 class path: # TODO: Make enemies move on the path
     def __init__(self, screen):
@@ -196,6 +245,7 @@ class path: # TODO: Make enemies move on the path
         pygame.draw.line(self.screen, (90, 140, 60), (700, 475), (700, 176), 50)
         pygame.draw.line(self.screen, (90, 140, 60), (700, 200), (1025, 200), 50)
         pygame.draw.line(self.screen, (90, 140, 60), (1000, 200), (1000, 0), 50)
+
 
 
 
@@ -225,15 +275,19 @@ def main():
     totalSpawns = 0
     last_wave_time = 0
     enemies_left = 0
+    mouseDown = False
     lives = 500
     money = 500
     targetpurchase =0
     UI = ui(screen)
     towers = []
+    listT = turretLists(screen)
     spawns = waveSpawn(screen, gamestate)
     activeEnemies = spawns.getList()
-    test = beamTurret(screen, 500, 300, 0.0)
+    #test = beamTurret(screen, 500, 300, 0.0)
     #my_enemy = enemy(screen, (255, 255, 0), 5, 200, 50, 0, 0)
+    beamTurrets = []
+    placingTower = False
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -250,23 +304,24 @@ def main():
         PTH.draw()
 
 
-        waves +=1
-        spawns.spawns(4,1)
+
+        spawns.spawns(4,50)
         print(money)
         activeEnemies = spawns.getList()
-        if len(activeEnemies)==4:
+        if enemies_left<=0:
             gamestate = False
         else:
             gamestate = True
         spawns.updateState(gamestate)
-        if test.targetEnemy(activeEnemies):
-            test.shoot()
+        print(gamestate)
+        #if test.targetEnemy(activeEnemies):
+        #    test.shoot()
         for enemy1 in activeEnemies:
             enemy1.move()
-
-            if distance((enemy1.x, enemy1.y),(test.x,test.y))<300:
-                if test.hitEnemy(enemy1):
-                    money += enemy1.damage(.5)
+            for beam1 in listT.beamTurrets:
+                if distance((enemy1.x, enemy1.y),(beam1.x,beam1.y))<300:
+                    if beam1.hitEnemy(enemy1):
+                        money += enemy1.damage(.5)
             if enemy1.offscreen():
                 activeEnemies.remove(enemy1)
                 lives -= enemy1.offscreen2()
@@ -275,8 +330,12 @@ def main():
                 activeEnemies.remove(enemy1)
             enemy1.draw()
         key = pygame.key.get_pressed()
-
-
+        #test.touchingMouse()
+        for beam1 in listT.beamTurrets:
+            beam1.touchingMouse()
+            if beam1.targetEnemy(activeEnemies):
+                beam1.shoot()
+            beam1.draw()
 
         if time.time() - last_wave_time > 3 and enemies_left <= 0:
             waves +=1
@@ -313,15 +372,39 @@ def main():
 
 
 
-        UI.draw()
+        UI.draw(lives,money,waves)
         if event.type == pygame.MOUSEBUTTONDOWN:
             clickposx,clickposy = event.pos
+            mouseDown = True
             if clickposy >= 530:
-                x = UI.purchase(clickposx,clickposy,True)
+                if mouseDown: #boolean
+                    if money >=500:
+                            if clickposy >= 540 and clickposy <= 560:
+                                if clickposx >= 90 and clickposx <= 110:
+                                    image1 = pygame.image.load('TowerDef_BeamTurret - Copy - Copy.png')
+                                    font = pygame.font.SysFont("Arial",30)
+
+                                    text = font.render("click on desired position, or back to the shop to deselect",True,(0,0,0))
+                                    buffer = time.time() + .2
+                                    placingTower = True
+
+        if placingTower:
+            pygame.draw.circle(screen, (155, 155, 155), pygame.mouse.get_pos(), 20)
+            x,y = pygame.mouse.get_pos()
+            screen.blit(image1, (x-image1.get_width()/2,y-image1.get_height()/2))
+            screen.blit(text, (250, 0))
+            mouseDown = updateMouse()
+            if mouseDown and buffer <= time.time():
+                placingTower = False
+                listT.placeBeam(x,y)
+                money-=500
+
+                #append beamTurret here
+
 
         #    #TODO: MAKE UNIQUE WAVES
 
-        test.draw()
+        #test.draw()
 
 
         # don't forget the update, otherwise nothing will show up!
