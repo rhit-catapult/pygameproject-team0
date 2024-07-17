@@ -277,7 +277,7 @@ def main():
     enemies_left = 0
     mouseDown = False
     lives = 500
-    money = 500
+    money = 700
     targetpurchase =0
     UI = ui(screen)
     towers = []
@@ -349,6 +349,10 @@ def main():
                 enemies_left = 15
             elif waves == 4:
                 enemies_left = 20
+            elif waves == 5:
+                enemies_left = 25
+            elif waves == 6:
+                enemies_left = 30
 
         if waves == 1 and enemies_left > 0:
             if spawns.spawns(2, 10):
@@ -359,15 +363,18 @@ def main():
                 enemies_left -= 1
 
         if waves == 3 and enemies_left > 0:
-            if spawns.spawns(1, 50):
+            if spawns.spawns(1, 100):
                 enemies_left -= 1
 
         if waves == 4 and enemies_left > 0:
-            if spawns.spawns(1, 65):
+            if spawns.spawns(1, 150):
                 enemies_left -= 1
 
         if waves == 5 and enemies_left > 0:
-            if spawns.spawns(.8, 80):
+            if spawns.spawns(.8, 200):
+                enemies_left -= 1
+        if waves == 6 and enemies_left > 0:
+            if spawns.spawns(.6, 300):
                 enemies_left -= 1
 
 
@@ -378,7 +385,7 @@ def main():
             mouseDown = True
             if clickposy >= 530:
                 if mouseDown: #boolean
-                    if money >=500:
+                    if money >= 700:
                             if clickposy >= 540 and clickposy <= 560:
                                 if clickposx >= 90 and clickposx <= 110:
                                     image1 = pygame.image.load('TowerDef_BeamTurret - Copy - Copy.png')
@@ -397,7 +404,7 @@ def main():
             if mouseDown and buffer <= time.time():
                 placingTower = False
                 listT.placeBeam(x,y)
-                money-=500
+                money-=700
 
                 #append beamTurret here
 
