@@ -28,6 +28,7 @@ class enemy:
         self.speed_x = speed_x
         self.speed_y = speed_y
         self.health = health
+        self.maxHealth = health
         self.speed = speed
         self.name = random.randint(0,500)
 
@@ -76,8 +77,12 @@ class enemy:
     def draw(self):
         pygame.draw.circle(self.screen, (self.color), (self.x, self.y),
                  25)
+        pygame.draw.line(self.screen,(255,0,0),((self.x-10),(self.y+10)),((self.x+10),(self.y+10)),7)
+        pygame.draw.line(self.screen, (0, 255, 0), ((self.x - 10), (self.y + 10)), ((self.x + 20*(self.health/self.maxHealth)-10), (self.y + 10)), 7)
     def getDist(self):
         return self.dist
+    def getHealth(self):
+        return self.health
 class beamTurret:
     def __init__(self,screen,x,y,angle):
         self.screen =screen
@@ -224,12 +229,103 @@ class minigunTurret:
             pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 250)
             self.screen.blit(surface,(self.x-300,self.y-300))
 
+class lightningTurret:
+    def __init__(self,screen,x,y,angle):
+        self.screen =screen
+        self.x =x
+        self.y = y
+        self.angle = angle
+        self.image1 = pygame.image.load('TowerDef_LightningReady.png')
+        self.baseImage1 = pygame.image.load('TowerDef_LightningReady.png')
+        self.image2 = pygame.image.load('TowerDef_LightningFiring.png')
+        self.baseImage2 = pygame.image.load('TowerDef_LightningFiring.png')
+        self.imagebuffer = 0
+        self.validTarget = []
+        self.targetnumber =0
+        self.targetx=0
+        self.targety=0
+        self.newAngle = self.angle
+        self.placed = False
+        self.buffer = 0
+        self.level = 1
+        self.firing = 0
+        self.cooldown =0
+        self.damage = 40
+        self.buildUp=0
+
+    def draw(self):
+        pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
+        if self.imagebuffer<=time.time():
+            self.screen.blit(self.image1,(self.x-self.image1.get_width()/2,self.y-self.image1.get_height()/2))
+        else:
+            self.screen.blit(self.image2, (self.x-self.image1.get_width()/2, self.y-self.image1.get_height()/2))
+
+    def turn(self, angle):
+        if angle < 10:
+            self.newAngle = math.degrees(angle)
+        self.image1 = pygame.transform.rotate(self.baseImage1, self.newAngle)
+        self.image2 = pygame.transform.rotate(self.baseImage2,self.newAngle)
+
+    def shoot(self):
+        if self.buffer <= time.time():
+            self.buffer = time.time()+1
+            g = random.randint(0, 255)
+            for _ in range(20):
+                pygame.draw.line(self.screen, (g, g, 255), (self.x, self.y),
+                                 (
+                                     (self.targetx + random.randint(-20, 20)),
+                                     (self.targety + random.randint(-20, 20))
+                                 ),
+                                 5)
+
+    def targetEnemy(self, active):   #TARGET FIRST ENEMY
+        self.validTarget.clear()
+        for enemy in active:
+            if distance((self.x,self.y),(enemy.x,enemy.y)) <=300:
+                self.validTarget.append(enemy)
+        if len(self.validTarget)==0:
+            return False
+        else:
+
+
+            self.validTarget.sort(key=lambda t: t.getHealth(),reverse=True)
+
+
+            tar = self.validTarget[0]
+            self.targetx = tar.x
+            self.targety = tar.y
+
+            if tar.y >= self.y:
+                self.angle = math.acos((tar.x-self.x)/(distance((self.x,self.y),(tar.x,tar.y))))
+            else:
+                self.angle = -1*math.acos((tar.x - self.x) / (distance((self.x, self.y), (tar.x, tar.y))))
+
+            self.turn((self.angle*-1))
+
+            return True
+    def hitEnemy(self,enemy):
+        if self.buffer <= time.time():
+            if enemy.x >= self.targetx - 7 and enemy.x <= self.targetx + 7:
+                if enemy.y >= self.targety - 7 and enemy.y <= self.targety + 7:
+                    self.imagebuffer = time.time()+.3
+                    return True
+    def getDamage(self):
+        return self.damage
+    def touchingMouse(self):
+        hitbox = pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
+        clickposx,clickposy = pygame.mouse.get_pos()
+        if  hitbox.collidepoint(clickposx,clickposy):
+            surface = pygame.Surface((600, 600), pygame.SRCALPHA)
+            pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 250)
+            self.screen.blit(surface,(self.x-300,self.y-300))
+
+
+
 class turretLists():
     def __init__(self,screen):
         self.screen = screen
         self.beamTurrets = []
-        self.rocketTurrets = []
-        self.sniperTurrets = []
+        self.lightningTurrets = []
         self.minigunTurrets = []
     def placeBeam(self,x,y):
         beam = beamTurret(self.screen,x,y,0)
@@ -237,6 +333,9 @@ class turretLists():
     def placeMinigun(self,x,y):
         mini = minigunTurret(self.screen,x,y,0)
         self.minigunTurrets.append(mini)
+    def placeLightning(self,x,y):
+        light = lightningTurret(self.screen,x,y,0)
+        self.lightningTurrets.append(light)
 
 
 def updateMouse():
@@ -263,6 +362,7 @@ class waveSpawn:
             Enemy = enemy(self.screen, color, 5, 200, 50, 5, 0, 50, speed)
             self.wavespawn.append(Enemy)
             Enemy.health = health
+            Enemy.maxHealth = health
             self.lastspawntime = time.time()
             return True
         return False
@@ -283,18 +383,21 @@ class ui:
         self.buyy = 550
         self.image1 = pygame.image.load('TowerDef_BeamTurret.png')
         self.image2 = pygame.image.load('TowerDef_MinigunTurret.png')
+        self.image3 = pygame.image.load('TowerDef_LightningReady.png')
     def draw(self,lives,money,wave):
         pygame.draw.rect(self.screen, (50,50,50),(0,525,1080,150))
         pygame.draw.circle(self.screen,(125,125,125),(self.buy1x,self.buyy),24)
         pygame.draw.circle(self.screen, (125, 125, 125), (self.buy2x, self.buyy), 24)
+        pygame.draw.circle(self.screen, (125, 125, 125), (self.buy3x, self.buyy), 24)
         self.screen.blit(self.image1,(self.buy1x-(self.image1.get_width()/2), self.buyy-(self.image1.get_height()/2)))
         self.screen.blit(self.image2,
                          (self.buy2x - (self.image2.get_width() / 2), self.buyy - (self.image2.get_height() / 2)))
+        self.screen.blit(self.image3,(self.buy3x - (self.image3.get_width() / 2), self.buyy - (self.image3.get_height() / 2)))
         font = pygame.font.SysFont("Arial", 20)
         pygame.draw.rect(self.screen, (155, 155, 155),(0,0,125,75))
 
         str1 = "Lives: "+str(lives)
-        str2 = "Money: "+str(money)
+        str2 = "Money: "+str(round(money))
         str3 = "Wave: "+str(wave)
         text1 = font.render(str1,True,(255,255,255))
         text2 = font.render(str2,True,(255,255,255))
@@ -306,6 +409,8 @@ class ui:
         self.screen.blit(text4, (67,575))
         text5 = font.render("Cost: 500", True, (255, 255, 255))
         self.screen.blit(text5, (367, 575))
+        text6 = font.render("Cost: 750", True, (255, 255, 255))
+        self.screen.blit(text6, (667, 575))
     #def purchase(self,clickposx,clickposy,mouseDown,money):
     #    if mouseDown: #boolean
     #        if clickposy >= self.buyy-10 and clickposy <= self.buyy +10:
@@ -386,7 +491,9 @@ def main():
     totalSpawns = 0
     last_wave_time = 0
     enemies_left = 0
+    enemies_left2 = 0
     mouseDown = False
+    placingTower3=False
     lives = 500
     money = 750
     targetpurchase =0
@@ -394,9 +501,11 @@ def main():
     towers = []
     listT = turretLists(screen)
     spawns = waveSpawn(screen, gamestate)
+    spawns2 = waveSpawn(screen, gamestate)
     activeEnemies = spawns.getList()
     #test = beamTurret(screen, 500, 300, 0.0)
     #my_enemy = enemy(screen, (255, 255, 0), 5, 200, 50, 0, 0)
+
     beamTurrets = []
     placingTower1 = False
     placingTower2 = False
@@ -425,7 +534,7 @@ def main():
         else:
             gamestate = True
         spawns.updateState(gamestate)
-
+        spawns2.updateState(gamestate)
         #if test.targetEnemy(activeEnemies):
         #    test.shoot()
         for enemy1 in activeEnemies:
@@ -438,6 +547,10 @@ def main():
                 if distance((enemy1.x, enemy1.y),(mini1.x,mini1.y))<250:
                     if mini1.hitEnemy(enemy1):
                         money += enemy1.damage(2)
+            for light1 in listT.lightningTurrets:
+                if distance((enemy1.x, enemy1.y),(light1.x,light1.y))<300:
+                    if light1.hitEnemy(enemy1):
+                        money += enemy1.damage(light1.getDamage())
             if enemy1.offscreen():
                 activeEnemies.remove(enemy1)
                 lives -= enemy1.offscreen2()
@@ -458,6 +571,11 @@ def main():
             if mini1.targetEnemy(activeEnemies):
                 mini1.shoot()
             mini1.draw()
+        for light1 in listT.lightningTurrets:
+            light1.touchingMouse()
+            if light1.targetEnemy(activeEnemies):
+                light1.shoot()
+            light1.draw()
 
         if time.time() - last_wave_time > 3 and enemies_left <= 0:
             waves +=1
@@ -484,6 +602,7 @@ def main():
                 enemies_left = 40
             elif waves == 10:
                 enemies_left = 1
+                enemies_left2 = 22
 
         if waves == 1 and enemies_left > 0:
             if spawns.spawns(2, 10,2,(20,200,20)):
@@ -524,6 +643,9 @@ def main():
         if waves == 10 and enemies_left > 0:
             if spawns.spawns(1, 3000, 1, (255, 10, 10)):
                 enemies_left -= 1
+        if waves == 10 and enemies_left2 > 0:
+            if spawns.spawns(1, 200, 4, (255, 10, 10)):
+                enemies_left2 -= 1
 
       #  if lives <= 0:
            # break
@@ -553,6 +675,16 @@ def main():
                                                        True, (0, 0, 0))
                                         buffer = time.time() + .2
                                         placingTower2 = True
+                    if money >= 750:
+                        if clickposy >= 540 and clickposy <= 560:
+                            if clickposx >= 685 and clickposx <= 715:
+                                image3 = pygame.image.load('TowerDef_LightningReady.png')
+                                font = pygame.font.SysFont("Arial", 30)
+
+                                text = font.render("click on desired position, or back to the shop to deselect",
+                                                   True, (0, 0, 0))
+                                buffer = time.time() + .2
+                                placingTower3 = True
 
         if placingTower1:
             pygame.draw.circle(screen, (155, 155, 155), pygame.mouse.get_pos(), 20)
@@ -576,6 +708,10 @@ def main():
                     if len(listT.minigunTurrets) > 0:
                         for mini1 in listT.minigunTurrets:
                             if (box.collidepoint(mini1.x, mini1.y)):
+                                a += 1
+                    if len(listT.lightningTurrets) > 0:
+                        for light1 in listT.lightningTurrets:
+                            if box.collidepoint(light1.x, light1.y):
                                 a += 1
                     a+=PTH.collision(box)
                     if a == 0:
@@ -605,11 +741,48 @@ def main():
                         for mini1 in listT.minigunTurrets:
                             if (box.collidepoint(mini1.x, mini1.y)):
                                 a +=1
+                    if len(listT.lightningTurrets) > 0:
+                        for light1 in listT.lightningTurrets:
+                            if box.collidepoint(light1.x, light1.y):
+                                a += 1
 
                     a += PTH.collision(box)
                     if a == 0:
                         listT.placeMinigun(x, y)
                         money -= 500
+        if placingTower3:
+            pygame.draw.circle(screen, (155, 155, 155), pygame.mouse.get_pos(), 20)
+            x, y = pygame.mouse.get_pos()
+            box = pygame.draw.rect(screen, (155, 155, 155), (x - 10, y - 10, 20, 20))
+            screen.blit(image3, (x - image3.get_width() / 2, y - image3.get_height() / 2))
+            screen.blit(text, (250, 0))
+            surface = pygame.Surface((600, 600), pygame.SRCALPHA)
+            pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 250)
+            screen.blit(surface, (x - 300, y - 300))
+
+            a = 0
+            mouseDown = updateMouse()
+            if mouseDown and buffer <= time.time():
+                placingTower3 = False
+                if y <= 525:
+                        if len(listT.beamTurrets) > 0:
+                            for beam1 in listT.beamTurrets:
+                                if (box.collidepoint(beam1.x, beam1.y)):
+                                    a += 1
+                        if len(listT.minigunTurrets) > 0:
+                            for mini1 in listT.minigunTurrets:
+                                if (box.collidepoint(mini1.x, mini1.y)):
+                                    a += 1
+                        if len(listT.lightningTurrets)>0:
+                            for light1 in listT.lightningTurrets:
+                                if box.collidepoint(light1.x,light1.y):
+                                    a+=1
+
+
+                        a += PTH.collision(box)
+                        if a == 0:
+                            listT.placeLightning(x, y)
+                            money -= 750
 
                 #append beamTurret here
 
