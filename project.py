@@ -400,6 +400,7 @@ def main():
     beamTurrets = []
     placingTower1 = False
     placingTower2 = False
+    wave_delay = 3
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -459,7 +460,7 @@ def main():
                 mini1.shoot()
             mini1.draw()
 
-        if time.time() - last_wave_time > 3 and enemies_left <= 0:
+        if time.time() - last_wave_time > wave_delay and enemies_left <= 0:
             waves +=1
             money += 100+(85*waves)
             last_wave_time = time.time()
@@ -479,11 +480,26 @@ def main():
             elif waves == 7:
                 enemies_left = 35
             elif waves == 8:
-                enemies_left = 35
-            elif waves == 9:
                 enemies_left = 40
+            elif waves == 9:
+                enemies_left = 45
             elif waves == 10:
                 enemies_left = 1
+                wave_delay = 20
+            elif waves == 11:
+                enemies_left = 50
+                wave_delay = 3
+                money += enemy1.damage(.25) / (waves * (3))
+            elif waves == 12:
+                enemies_left = 55
+            elif waves == 13:
+                enemies_left = 60
+
+            elif waves == 14:
+                enemies_left = 65
+            elif waves == 15:
+                enemies_left = 3
+
 
         if waves == 1 and enemies_left > 0:
             if spawns.spawns(2, 10,2,(20,200,20)):
@@ -522,6 +538,27 @@ def main():
                 enemies_left -= 1
 
         if waves == 10 and enemies_left > 0:
+            if spawns.spawns(1, 3000, 1, (255, 10, 10)):
+                enemies_left -= 1
+
+
+        if waves == 11 and enemies_left > 0:
+            if spawns.spawns(.3, 180, 5, (100, 200, 50)):
+                enemies_left -= 1
+
+        if waves == 12 and enemies_left > 0:
+            if spawns.spawns(.4, 330, 2, (225, 225, 0)):
+                enemies_left -= 1
+
+        if waves == 13 and enemies_left > 0:
+            if spawns.spawns(.2, 100, 9, (0, 225, 20)):
+                enemies_left -= 1
+
+        if waves == 14 and enemies_left > 0:
+            if spawns.spawns(.7, 350, 4, (40, 70, 200)):
+                enemies_left -= 1
+
+        if waves == 15 and enemies_left > 0:
             if spawns.spawns(1, 4500, 1, (255, 10, 10)):
                 enemies_left -= 1
 
