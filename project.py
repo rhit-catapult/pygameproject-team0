@@ -182,8 +182,8 @@ class minigunTurret:
             self.buffer = time.time()+.1
             pygame.draw.line (self.screen,(255,255,0), (self.x, self.y),
                           (
-                              (self.targetx+random.randint(-5,5)),
-                              (self.targety+random.randint(-5,5))
+                              (self.targetx+random.randint(-20,20)),
+                              (self.targety+random.randint(-20,20))
                           ),
                           5)
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
@@ -200,8 +200,7 @@ class minigunTurret:
             tar = self.validTarget[0]
             self.targetx = tar.x
             self.targety = tar.y
-            print(self.targetx)
-            print(tar.x)
+
             if tar.y >= self.y:
                 self.angle = math.acos((tar.x-self.x)/(distance((self.x,self.y),(tar.x,tar.y))))
             else:
@@ -321,7 +320,7 @@ class ui:
 
 
 
-class path: # TODO: Make enemies move on the path
+class path:
     def __init__(self, screen):
         self.screen = screen
     def draw(self):
@@ -331,7 +330,27 @@ class path: # TODO: Make enemies move on the path
         pygame.draw.line(self.screen, (90, 140, 60), (700, 475), (700, 176), 50)
         pygame.draw.line(self.screen, (90, 140, 60), (700, 200), (1025, 200), 50)
         pygame.draw.line(self.screen, (90, 140, 60), (1000, 200), (1000, 0), 50)
-
+    def collision(self,point):
+        hitbox1 =  pygame.draw.line(self.screen, (90, 140, 60), (0, 200), (500, 200), 50)
+        hitbox2 =  pygame.draw.line(self.screen, (90, 140, 60), (475, 180), (475, 500), 50)
+        hitbox3 =  pygame.draw.line(self.screen, (90, 140, 60), (475, 475), (725, 475), 50)
+        hitbox4 =  pygame.draw.line(self.screen, (90, 140, 60), (700, 475), (700, 176), 50)
+        hitbox5 =  pygame.draw.line(self.screen, (90, 140, 60), (700, 200), (1025, 200), 50)
+        hitbox6 =  pygame.draw.line(self.screen, (90, 140, 60), (1000, 200), (1000, 0), 50)
+        if hitbox1.collidepoint(point.x,point.y):
+            return 1
+        elif hitbox2.collidepoint(point.x,point.y):
+            return 1
+        elif hitbox3.collidepoint(point.x,point.y):
+            return 1
+        elif hitbox4.collidepoint(point.x,point.y):
+            return 1
+        elif hitbox5.collidepoint(point.x,point.y):
+            return 1
+        elif hitbox6.collidepoint(point.x,point.y):
+            return 1
+        else:
+            return 0
 
 
 
@@ -500,25 +519,59 @@ def main():
         if placingTower1:
             pygame.draw.circle(screen, (155, 155, 155), pygame.mouse.get_pos(), 20)
             x,y = pygame.mouse.get_pos()
+            box = pygame.draw.rect(screen, (155, 155, 155), (x - 10, y - 10, 20, 20))
             screen.blit(image1, (x-image1.get_width()/2,y-image1.get_height()/2))
             screen.blit(text, (250, 0))
             mouseDown = updateMouse()
+            surface = pygame.Surface((600, 600), pygame.SRCALPHA)
+            pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 300)
+            screen.blit(surface, (x - 300, y - 300))
+
+            a = 0
             if mouseDown and buffer <= time.time():
                 placingTower1 = False
                 if y <= 525:
-                    listT.placeBeam(x,y)
-                    money-=750
+                    if len(listT.beamTurrets) > 0:
+                        for beam1 in listT.beamTurrets:
+                            if (box.collidepoint(beam1.x, beam1.y)):
+                                a += 1
+                    if len(listT.minigunTurrets) > 0:
+                        for mini1 in listT.minigunTurrets:
+                            if (box.collidepoint(mini1.x, mini1.y)):
+                                a += 1
+                    a+=PTH.collision(box)
+                    if a == 0:
+                        listT.placeBeam(x,y)
+                        money-=750
         if placingTower2:
             pygame.draw.circle(screen, (155, 155, 155), pygame.mouse.get_pos(), 20)
             x, y = pygame.mouse.get_pos()
+            box = pygame.draw.rect(screen, (155, 155, 155), (x - 10, y - 10, 20, 20))
             screen.blit(image2, (x - image2.get_width() / 2, y - image2.get_height() / 2))
             screen.blit(text, (250, 0))
+            surface = pygame.Surface((600, 600), pygame.SRCALPHA)
+            pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 250)
+            screen.blit(surface, (x - 300, y - 300))
+
+            a = 0
             mouseDown = updateMouse()
             if mouseDown and buffer <= time.time():
                 placingTower2 = False
                 if y <=525:
-                    listT.placeMinigun(x, y)
-                    money -= 500
+                    if len(listT.beamTurrets)>0:
+                        for beam1 in listT.beamTurrets:
+                            if (box.collidepoint(beam1.x, beam1.y)):
+                                a +=1
+                    if len(listT.minigunTurrets)>0:
+                        print (len(listT.minigunTurrets))
+                        for mini1 in listT.minigunTurrets:
+                            if (box.collidepoint(mini1.x, mini1.y)):
+                                a +=1
+
+                    a += PTH.collision(box)
+                    if a == 0:
+                        listT.placeMinigun(x, y)
+                        money -= 500
 
                 #append beamTurret here
 
