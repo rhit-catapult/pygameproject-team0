@@ -72,13 +72,15 @@ class enemy:
             return True
     def deathCheck2(self):
         if self.health <=0:
+            print(self.health)
             return self.health
 
     def draw(self):
         pygame.draw.circle(self.screen, (self.color), (self.x, self.y),
                  25)
         pygame.draw.line(self.screen,(255,0,0),((self.x-10),(self.y+10)),((self.x+10),(self.y+10)),7)
-        pygame.draw.line(self.screen, (0, 255, 0), ((self.x - 10), (self.y + 10)), ((self.x + 20*(self.health/self.maxHealth)-10), (self.y + 10)), 7)
+        if self.health>0:
+            pygame.draw.line(self.screen, (0, 255, 0), ((self.x - 10), (self.y + 10)), ((self.x + 20*(self.health/self.maxHealth)-10), (self.y + 10)), 7)
     def getDist(self):
         return self.dist
     def getHealth(self):
@@ -558,8 +560,9 @@ def main():
                 lives -= enemy1.offscreen2()
 
             if enemy1.deathCheck():
+                money+=enemy1.deathCheck2()
                 activeEnemies.remove(enemy1)
-                money-=enemy1.deathCheck2()
+
             enemy1.draw()
         key = pygame.key.get_pressed()
         #test.touchingMouse()
