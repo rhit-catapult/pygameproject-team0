@@ -63,7 +63,7 @@ class enemy:
             else:
                 self.speed_x = self.speed
             self.speed_y = 0
-        elif self.x >= 1000 and self.y >= 200:
+        elif self.x >= 1000 and self.y >= 180:
             self.speed_x = 0
             if self.slowed:
                 self.speed_y = -self.slowedSpeed
