@@ -651,43 +651,43 @@ def main():
                 enemies_left -= 1
 
         if waves == 5 and enemies_left > 0:
-            if spawns.spawns(.8, 70, 4, (20, 200, 200)):
+            if spawns.spawns(.8, 75, 4, (20, 200, 200)):
                 enemies_left -= 1
 
         if waves == 6 and enemies_left > 0:
-            if spawns.spawns(.8, 200, 2, (20, 50, 200)):
+            if spawns.spawns(.8, 220, 2, (20, 50, 200)):
                 enemies_left -= 1
 
         if waves == 7 and enemies_left > 0:
-            if spawns.spawns(.5, 50, 8, (20, 240, 10)):
+            if spawns.spawns(.5, 55, 8, (20, 240, 10)):
                 enemies_left -= 1
 
         if waves == 8 and enemies_left > 0:
-            if spawns.spawns(.7, 190, 3, (200, 100, 20)):
+            if spawns.spawns(.7, 210, 3, (200, 100, 20)):
                 enemies_left -= 1
 
         if waves == 9 and enemies_left > 0:
-            if spawns.spawns(.5, 140, 7, (0, 250, 100)):
+            if spawns.spawns(.5, 150, 7, (0, 250, 100)):
                 enemies_left -= 1
 
         if waves == 10 and enemies_left > 0:
-            if spawns.spawns(1, 3000, 1, (255, 10, 10)):
+            if spawns.spawns(1, 3200, 1, (255, 10, 10)):
                 enemies_left -= 1
 
         if waves == 11 and enemies_left > 0:
-            if spawns.spawns(.3, 180, 5, (100, 200, 50)):
+            if spawns.spawns(.3, 200, 5, (100, 200, 50)):
                 enemies_left -= 1
 
         if waves == 12 and enemies_left > 0:
-            if spawns.spawns(.4, 330, 2, (225, 225, 0)):
+            if spawns.spawns(.4, 340, 2, (225, 225, 0)):
                 enemies_left -= 1
 
         if waves == 13 and enemies_left > 0:
-            if spawns.spawns(.2, 100, 9, (0, 225, 20)):
+            if spawns.spawns(.2, 120, 9, (0, 225, 20)):
                 enemies_left -= 1
 
         if waves == 14 and enemies_left > 0:
-            if spawns.spawns(.7, 350, 4, (40, 70, 200)):
+            if spawns.spawns(.7, 370, 4, (40, 70, 200)):
                 enemies_left -= 1
 
         if waves == 15 and enemies_left > 0:
