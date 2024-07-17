@@ -99,7 +99,7 @@ class beamTurret:
         self.targety=0
         self.newAngle = self.angle
         self.placed = False
-
+        self.sound = pygame.mixer.Sound('laser-zap-90575.mp3')
     def draw(self):
         pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
         self.screen.blit(self.image,(self.x-(self.image.get_width()/2), self.y-(self.image.get_height()/2)))
@@ -122,6 +122,7 @@ class beamTurret:
                              (self.y + (math.sin(self.angle) * 300))
                          ),
                          10)
+        self.sound.play(1,666)
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
         self.validTarget.clear()
         for enemy in active:
@@ -177,6 +178,7 @@ class minigunTurret:
         self.newAngle = self.angle
         self.placed = False
         self.buffer = 0
+        self.sound = pygame.mixer.Sound('bullet-hit-metal-84818.mp3')
 
     def draw(self):
         pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
@@ -195,6 +197,7 @@ class minigunTurret:
                               (self.targety+random.randint(-20,20))
                           ),
                           5)
+            self.sound.play(1)
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
         self.validTarget.clear()
         for enemy in active:
@@ -254,6 +257,7 @@ class lightningTurret:
         self.cooldown =0
         self.damage = 40
         self.buildUp=0
+        self.sound=pygame.mixer.Sound('electric_zap_001-6374.mp3')
 
     def draw(self):
         pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
@@ -279,6 +283,7 @@ class lightningTurret:
                                      (self.targety + random.randint(-20, 20))
                                  ),
                                  5)
+            self.sound.play(1,800)
 
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
         self.validTarget.clear()
@@ -411,7 +416,7 @@ class ui:
         self.screen.blit(text4, (67,575))
         text5 = font.render("Cost: 500", True, (255, 255, 255))
         self.screen.blit(text5, (367, 575))
-        text6 = font.render("Cost: 750", True, (255, 255, 255))
+        text6 = font.render("Cost: 650", True, (255, 255, 255))
         self.screen.blit(text6, (667, 575))
     #def purchase(self,clickposx,clickposy,mouseDown,money):
     #    if mouseDown: #boolean
@@ -623,23 +628,23 @@ def main():
                 enemies_left = 3
 
         if waves == 1 and enemies_left > 0:
-            if spawns.spawns(2, 10,2,(20,200,20)):
+            if spawns.spawns(2, 10, 2, (20, 200, 20)):
                 enemies_left -= 1
 
         if waves == 2 and enemies_left > 0:
-            if spawns.spawns(2, 15,4,(20,255,100)):
+            if spawns.spawns(2, 15, 4, (20, 255, 100)):
                 enemies_left -= 1
 
         if waves == 3 and enemies_left > 0:
-            if spawns.spawns(1, 35,4,(20,100,20)):
+            if spawns.spawns(1, 35, 4, (20, 100, 20)):
                 enemies_left -= 1
 
         if waves == 4 and enemies_left > 0:
-            if spawns.spawns(1, 55,3,(20,200,20)):
+            if spawns.spawns(1, 55, 3, (20, 200, 20)):
                 enemies_left -= 1
 
         if waves == 5 and enemies_left > 0:
-            if spawns.spawns(.8, 70,4,(20,200,200)):
+            if spawns.spawns(.8, 70, 4, (20, 200, 200)):
                 enemies_left -= 1
 
         if waves == 6 and enemies_left > 0:
@@ -710,7 +715,7 @@ def main():
                                                        True, (0, 0, 0))
                                         buffer = time.time() + .2
                                         placingTower2 = True
-                    if money >= 750:
+                    if money >= 650:
                         if clickposy >= 540 and clickposy <= 560:
                             if clickposx >= 685 and clickposx <= 715:
                                 image3 = pygame.image.load('TowerDef_LightningReady.png')
@@ -817,7 +822,7 @@ def main():
                         a += PTH.collision(box)
                         if a == 0:
                             listT.placeLightning(x, y)
-                            money -= 750
+                            money -= 650
 
                 #append beamTurret here
 
