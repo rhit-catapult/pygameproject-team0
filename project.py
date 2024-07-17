@@ -604,8 +604,10 @@ def main():
                 enemies_left = 25
             elif waves == 6:
                 enemies_left = 30
+                wave_delay = 5
             elif waves == 7:
                 enemies_left = 35
+                wave_delay = 3
             elif waves == 8:
                 enemies_left = 40
             elif waves == 9:
@@ -619,9 +621,10 @@ def main():
                 # money += enemy1.damage(.25) / (waves * (3))
             elif waves == 12:
                 enemies_left = 55
+                wave_delay = 5
             elif waves == 13:
                 enemies_left = 60
-
+                wave_delay = 3
             elif waves == 14:
                 enemies_left = 65
             elif waves == 15:
@@ -648,19 +651,19 @@ def main():
                 enemies_left -= 1
 
         if waves == 6 and enemies_left > 0:
-            if spawns.spawns(.8, 220, 2, (20, 50, 200)):
+            if spawns.spawns(.8, 190, 2, (20, 50, 200)):
                 enemies_left -= 1
 
         if waves == 7 and enemies_left > 0:
-            if spawns.spawns(.5, 55, 8, (20, 240, 10)):
+            if spawns.spawns(.5, 50, 8, (20, 240, 10)):
                 enemies_left -= 1
 
         if waves == 8 and enemies_left > 0:
-            if spawns.spawns(.7, 210, 3, (200, 100, 20)):
+            if spawns.spawns(.7, 230, 3, (200, 100, 20)):
                 enemies_left -= 1
 
         if waves == 9 and enemies_left > 0:
-            if spawns.spawns(.5, 150, 7, (0, 250, 100)):
+            if spawns.spawns(.5, 140, 7, (0, 250, 100)):
                 enemies_left -= 1
 
         if waves == 10 and enemies_left > 0:
@@ -672,19 +675,19 @@ def main():
                 enemies_left -= 1
 
         if waves == 12 and enemies_left > 0:
-            if spawns.spawns(.4, 340, 2, (225, 225, 0)):
+            if spawns.spawns(.4, 370, 2, (225, 225, 0)):
                 enemies_left -= 1
 
         if waves == 13 and enemies_left > 0:
-            if spawns.spawns(.2, 120, 9, (0, 225, 20)):
+            if spawns.spawns(.2, 100, 9, (0, 225, 20)):
                 enemies_left -= 1
 
         if waves == 14 and enemies_left > 0:
-            if spawns.spawns(.7, 370, 4, (40, 70, 200)):
+            if spawns.spawns(.7, 380, 4, (40, 70, 200)):
                 enemies_left -= 1
 
         if waves == 15 and enemies_left > 0:
-            if spawns.spawns(1, 4500, 1, (255, 10, 10)):
+            if spawns.spawns(1, 4500, 1, (255, 180, 90)):
                 enemies_left -= 1
 
         if lives <= 0:
