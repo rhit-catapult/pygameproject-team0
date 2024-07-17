@@ -277,7 +277,7 @@ def main():
     enemies_left = 0
     mouseDown = False
     lives = 500
-    money = 700
+    money = 300
     targetpurchase =0
     UI = ui(screen)
     towers = []
@@ -322,7 +322,7 @@ def main():
             for beam1 in listT.beamTurrets:
                 if distance((enemy1.x, enemy1.y),(beam1.x,beam1.y))<300:
                     if beam1.hitEnemy(enemy1):
-                        money += enemy1.damage(.5)
+                        money += enemy1.damage(.5) / waves
             if enemy1.offscreen():
                 activeEnemies.remove(enemy1)
                 lives -= enemy1.offscreen2()
@@ -354,6 +354,10 @@ def main():
                 enemies_left = 25
             elif waves == 6:
                 enemies_left = 30
+            elif waves == 7:
+                enemies_left = 35
+            elif waves == 8:
+                enemies_left = 40
 
         if waves == 1 and enemies_left > 0:
             if spawns.spawns(2, 10):
@@ -374,8 +378,17 @@ def main():
         if waves == 5 and enemies_left > 0:
             if spawns.spawns(.8, 200):
                 enemies_left -= 1
+
         if waves == 6 and enemies_left > 0:
             if spawns.spawns(.6, 300):
+                enemies_left -= 1
+
+        if waves == 7 and enemies_left > 0:
+            if spawns.spawns(.4, 500):
+                enemies_left -= 1
+
+        if waves == 8 and enemies_left > 0:
+            if spawns.spawns(.2, 750):
                 enemies_left -= 1
 
 
@@ -386,7 +399,7 @@ def main():
             mouseDown = True
             if clickposy >= 530:
                 if mouseDown: #boolean
-                    if money >= 700:
+                    if money >= 300:
                             if clickposy >= 540 and clickposy <= 560:
                                 if clickposx >= 90 and clickposx <= 110:
                                     image1 = pygame.image.load('TowerDef_BeamTurret - Copy - Copy.png')
@@ -405,7 +418,7 @@ def main():
             if mouseDown and buffer <= time.time():
                 placingTower = False
                 listT.placeBeam(x,y)
-                money-=700
+                money-=300
 
                 #append beamTurret here
 
