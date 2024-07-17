@@ -408,7 +408,7 @@ def main():
             for beam1 in listT.beamTurrets:
                 if distance((enemy1.x, enemy1.y),(beam1.x,beam1.y))<300:
                     if beam1.hitEnemy(enemy1):
-                        money += enemy1.damage(.25)
+                        money += enemy1.damage(.25) / waves
             for mini1 in listT.minigunTurrets:
                 if distance((enemy1.x, enemy1.y),(mini1.x,mini1.y))<250:
                     if mini1.hitEnemy(enemy1):
@@ -436,7 +436,7 @@ def main():
 
         if time.time() - last_wave_time > 3 and enemies_left <= 0:
             waves +=1
-            money += 100+(50*waves)
+            money += 100+(100*waves)
             last_wave_time = time.time()
             enemies_left = 10
             if waves == 1:
@@ -447,29 +447,61 @@ def main():
                 enemies_left = 15
             elif waves == 4:
                 enemies_left = 20
+            elif waves == 5:
+                enemies_left = 25
+            elif waves == 6:
+                enemies_left = 30
+            elif waves == 7:
+                enemies_left = 35
+            elif waves == 8:
+                enemies_left = 35
+            elif waves == 9:
+                enemies_left = 40
+            elif waves == 10:
+                enemies_left = 1
 
         if waves == 1 and enemies_left > 0:
-            if spawns.spawns(2, 10,4,(20,200,20)):
+            if spawns.spawns(2, 10,2,(20,200,20)):
                 enemies_left -= 1
 
         if waves == 2 and enemies_left > 0:
-            if spawns.spawns(2, 7,7,(20,255,100)):
+            if spawns.spawns(2, 15,4,(20,255,100)):
                 enemies_left -= 1
 
         if waves == 3 and enemies_left > 0:
-            if spawns.spawns(1, 50,2,(20,100,20)):
+            if spawns.spawns(1, 30,4,(20,100,20)):
                 enemies_left -= 1
 
         if waves == 4 and enemies_left > 0:
-            if spawns.spawns(1, 65,4,(20,200,20)):
+            if spawns.spawns(1, 50,3,(20,200,20)):
                 enemies_left -= 1
 
         if waves == 5 and enemies_left > 0:
-            if spawns.spawns(.8, 80,4,(20,200,20)):
+            if spawns.spawns(.8, 65,4,(20,200,200)):
                 enemies_left -= 1
 
-        if lives <= 0:
-            break
+        if waves == 6 and enemies_left > 0:
+            if spawns.spawns(.8, 150, 2, (20, 50, 200)):
+                enemies_left -= 1
+
+        if waves == 7 and enemies_left > 0:
+            if spawns.spawns(.5, 50, 8, (20, 240, 10)):
+                enemies_left -= 1
+
+        if waves == 8 and enemies_left > 0:
+            if spawns.spawns(.7, 170, 3, (200, 100, 20)):
+                enemies_left -= 1
+
+        if waves == 9 and enemies_left > 0:
+            if spawns.spawns(.5, 100, 7, (0, 250, 100)):
+                enemies_left -= 1
+
+        if waves == 10 and enemies_left > 0:
+            if spawns.spawns(1, 3000, 1, (255, 10, 10)):
+                enemies_left -= 1
+
+      #  if lives <= 0:
+           # break
 
         UI.draw(lives,money,waves)
         if event.type == pygame.MOUSEBUTTONDOWN:
