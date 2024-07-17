@@ -59,6 +59,8 @@ class enemy:
             return True
     def offscreen2(self):
         if self.y < 0:
+            if self.health < 1:
+                self.health = 1
             return self.health
     def damage(self,dam):
         self.health -=dam
@@ -289,7 +291,7 @@ class ui:
         self.screen.blit(self.image2,
                          (self.buy2x - (self.image2.get_width() / 2), self.buyy - (self.image2.get_height() / 2)))
         font = pygame.font.SysFont("Arial", 20)
-        pygame.draw.rect(self.screen, (155, 155, 155),(0,0,100,75))
+        pygame.draw.rect(self.screen, (155, 155, 155),(0,0,125,75))
 
         str1 = "Lives: "+str(lives)
         str2 = "Money: "+str(money)
@@ -300,6 +302,10 @@ class ui:
         self.screen.blit(text1, (0,0))
         self.screen.blit(text2, (0,25))
         self.screen.blit(text3, (0,50))
+        text4 = font.render("Cost: 750",True,(255,255,255))
+        self.screen.blit(text4, (67,575))
+        text5 = font.render("Cost: 500", True, (255, 255, 255))
+        self.screen.blit(text5, (367, 575))
     #def purchase(self,clickposx,clickposy,mouseDown,money):
     #    if mouseDown: #boolean
     #        if clickposy >= self.buyy-10 and clickposy <= self.buyy +10:
