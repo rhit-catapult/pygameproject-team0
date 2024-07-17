@@ -550,11 +550,11 @@ def main():
             for mini1 in listT.minigunTurrets:
                 if distance((enemy1.x, enemy1.y),(mini1.x,mini1.y))<250:
                     if mini1.hitEnemy(enemy1):
-                        money += enemy1.damage(2)
+                        money += enemy1.damage(2) / waves
             for light1 in listT.lightningTurrets:
                 if distance((enemy1.x, enemy1.y),(light1.x,light1.y))<300:
                     if light1.hitEnemy(enemy1):
-                        money += enemy1.damage(light1.getDamage())
+                        money += enemy1.damage(light1.getDamage()) / waves
             if enemy1.offscreen():
                 activeEnemies.remove(enemy1)
                 lives -= enemy1.offscreen2()
@@ -584,7 +584,7 @@ def main():
 
         if time.time() - last_wave_time > wave_delay and enemies_left <= 0:
             waves +=1
-            money += 100+(85*waves)
+            money += 100+(125*waves)
             last_wave_time = time.time()
             enemies_left = 10
             if waves == 1:
