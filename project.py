@@ -579,7 +579,7 @@ def main():
 
         if time.time() - last_wave_time > 3 and enemies_left <= 0:
             waves +=1
-            money += 100+(100*waves)
+            money += 100+(85*waves)
             last_wave_time = time.time()
             enemies_left = 10
             if waves == 1:
@@ -613,19 +613,19 @@ def main():
                 enemies_left -= 1
 
         if waves == 3 and enemies_left > 0:
-            if spawns.spawns(1, 30,4,(20,100,20)):
+            if spawns.spawns(1, 35,4,(20,100,20)):
                 enemies_left -= 1
 
         if waves == 4 and enemies_left > 0:
-            if spawns.spawns(1, 50,3,(20,200,20)):
+            if spawns.spawns(1, 55,3,(20,200,20)):
                 enemies_left -= 1
 
         if waves == 5 and enemies_left > 0:
-            if spawns.spawns(.8, 65,4,(20,200,200)):
+            if spawns.spawns(.8, 70,4,(20,200,200)):
                 enemies_left -= 1
 
         if waves == 6 and enemies_left > 0:
-            if spawns.spawns(.8, 150, 2, (20, 50, 200)):
+            if spawns.spawns(.8, 200, 2, (20, 50, 200)):
                 enemies_left -= 1
 
         if waves == 7 and enemies_left > 0:
@@ -633,22 +633,22 @@ def main():
                 enemies_left -= 1
 
         if waves == 8 and enemies_left > 0:
-            if spawns.spawns(.7, 170, 3, (200, 100, 20)):
+            if spawns.spawns(.7, 190, 3, (200, 100, 20)):
                 enemies_left -= 1
 
         if waves == 9 and enemies_left > 0:
-            if spawns.spawns(.5, 100, 7, (0, 250, 100)):
+            if spawns.spawns(.5, 140, 7, (0, 250, 100)):
                 enemies_left -= 1
 
         if waves == 10 and enemies_left > 0:
-            if spawns.spawns(1, 3000, 1, (255, 10, 10)):
+            if spawns.spawns(1, 4500, 1, (255, 10, 10)):
                 enemies_left -= 1
         if waves == 10 and enemies_left2 > 0:
             if spawns.spawns(1, 200, 4, (255, 10, 10)):
                 enemies_left2 -= 1
 
-      #  if lives <= 0:
-           # break
+        if lives <= 0:
+            break
 
         UI.draw(lives,money,waves)
         if event.type == pygame.MOUSEBUTTONDOWN:
