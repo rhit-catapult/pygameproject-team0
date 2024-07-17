@@ -125,7 +125,7 @@ class beamTurret:
                 self.angle = -1*math.acos((tar.x - self.x) / (distance((self.x, self.y), (tar.x, tar.y))))
 
             self.turn((self.angle*-1))
-            print(tar.name)
+
             return True
     def hitEnemy(self,enemy):
         hitbox = pygame.draw.line (self.screen,(255,100,100), (self.x, self.y),
@@ -144,6 +144,76 @@ class beamTurret:
             pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 300)
             self.screen.blit(surface,(self.x-300,self.y-300))
 
+class minigunTurret:
+    def __init__(self,screen,x,y,angle):
+        self.screen =screen
+        self.x =x
+        self.y = y
+        self.angle = angle
+        self.image = pygame.image.load('TowerDef_MinigunTurret.png')
+        self.baseImage = pygame.image.load('TowerDef_MinigunTurret.png')
+        self.validTarget = []
+        self.targetnumber =0
+        self.targetx=0
+        self.targety=0
+        self.newAngle = self.angle
+        self.placed = False
+        self.buffer = 0
+
+    def draw(self):
+        pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
+        self.screen.blit(self.image,(self.x-(self.image.get_width()/2), self.y-(self.image.get_height()/2)))
+    def turn(self, angle):
+        if angle < 10:
+            self.newAngle = math.degrees(angle)
+        self.image = pygame.transform.rotate(self.baseImage, self.newAngle)
+
+    def shoot(self):
+        if self.buffer <= time.time():
+            self.buffer = time.time()+.1
+            pygame.draw.line (self.screen,(255,255,0), (self.x, self.y),
+                          (
+                              (self.targetx+random.randint(-5,5)),
+                              (self.targety+random.randint(-5,5))
+                          ),
+                          5)
+    def targetEnemy(self, active):   #TARGET FIRST ENEMY
+        self.validTarget.clear()
+        for enemy in active:
+            if distance((self.x,self.y),(enemy.x,enemy.y)) <=250:
+                self.validTarget.append(enemy)
+        if len(self.validTarget)==0:
+            return False
+        else:
+            self.validTarget.sort(key=lambda t: t.getDist(),reverse=True)
+
+
+            tar = self.validTarget[0]
+            self.targetx = tar.x
+            self.targety = tar.y
+            print(self.targetx)
+            print(tar.x)
+            if tar.y >= self.y:
+                self.angle = math.acos((tar.x-self.x)/(distance((self.x,self.y),(tar.x,tar.y))))
+            else:
+                self.angle = -1*math.acos((tar.x - self.x) / (distance((self.x, self.y), (tar.x, tar.y))))
+
+            self.turn((self.angle*-1))
+
+            return True
+    def hitEnemy(self,enemy):
+        if self.buffer<=time.time():
+            if enemy.x >= self.targetx-5 and enemy.x <= self.targetx+5:
+                if enemy.y >= self.targety - 5 and enemy.y <= self.targety + 5:
+                    return True
+    def touchingMouse(self):
+        hitbox = pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
+        clickposx,clickposy = pygame.mouse.get_pos()
+        if  hitbox.collidepoint(clickposx,clickposy):
+            surface = pygame.Surface((600, 600), pygame.SRCALPHA)
+            pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 250)
+            self.screen.blit(surface,(self.x-300,self.y-300))
+
 class turretLists():
     def __init__(self,screen):
         self.screen = screen
@@ -154,6 +224,9 @@ class turretLists():
     def placeBeam(self,x,y):
         beam = beamTurret(self.screen,x,y,0)
         self.beamTurrets.append(beam)
+    def placeMinigun(self,x,y):
+        mini = minigunTurret(self.screen,x,y,0)
+        self.minigunTurrets.append(mini)
 
 
 def updateMouse():
@@ -199,10 +272,14 @@ class ui:
         self.buy3x = 700
         self.buyy = 550
         self.image1 = pygame.image.load('TowerDef_BeamTurret.png')
+        self.image2 = pygame.image.load('TowerDef_MinigunTurret.png')
     def draw(self,lives,money,wave):
         pygame.draw.rect(self.screen, (0,0,0),(0,525,1080,150))
         pygame.draw.circle(self.screen,(125,125,125),(self.buy1x,self.buyy),24)
+        pygame.draw.circle(self.screen, (125, 125, 125), (self.buy2x, self.buyy), 24)
         self.screen.blit(self.image1,(self.buy1x-(self.image1.get_width()/2), self.buyy-(self.image1.get_height()/2)))
+        self.screen.blit(self.image2,
+                         (self.buy2x - (self.image2.get_width() / 2), self.buyy - (self.image2.get_height() / 2)))
         font = pygame.font.SysFont("Arial", 20)
         pygame.draw.rect(self.screen, (155, 155, 155),(0,0,100,75))
 
@@ -277,7 +354,7 @@ def main():
     enemies_left = 0
     mouseDown = False
     lives = 500
-    money = 500
+    money = 750
     targetpurchase =0
     UI = ui(screen)
     towers = []
@@ -287,7 +364,8 @@ def main():
     #test = beamTurret(screen, 500, 300, 0.0)
     #my_enemy = enemy(screen, (255, 255, 0), 5, 200, 50, 0, 0)
     beamTurrets = []
-    placingTower = False
+    placingTower1 = False
+    placingTower2 = False
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -305,15 +383,15 @@ def main():
 
 
 
-        spawns.spawns(4,50)
-        print(money)
+        #spawns.spawns(4,50)
+
         activeEnemies = spawns.getList()
         if enemies_left<=0:
             gamestate = False
         else:
             gamestate = True
         spawns.updateState(gamestate)
-        print(gamestate)
+
         #if test.targetEnemy(activeEnemies):
         #    test.shoot()
         for enemy1 in activeEnemies:
@@ -321,7 +399,11 @@ def main():
             for beam1 in listT.beamTurrets:
                 if distance((enemy1.x, enemy1.y),(beam1.x,beam1.y))<300:
                     if beam1.hitEnemy(enemy1):
-                        money += enemy1.damage(.5)
+                        money += enemy1.damage(.25)
+            for mini1 in listT.minigunTurrets:
+                if distance((enemy1.x, enemy1.y),(mini1.x,mini1.y))<250:
+                    if mini1.hitEnemy(enemy1):
+                        money += enemy1.damage(2)
             if enemy1.offscreen():
                 activeEnemies.remove(enemy1)
                 lives -= enemy1.offscreen2()
@@ -336,9 +418,15 @@ def main():
             if beam1.targetEnemy(activeEnemies):
                 beam1.shoot()
             beam1.draw()
+        for mini1 in listT.minigunTurrets:
+            mini1.touchingMouse()
+            if mini1.targetEnemy(activeEnemies):
+                mini1.shoot()
+            mini1.draw()
 
         if time.time() - last_wave_time > 3 and enemies_left <= 0:
             waves +=1
+            money += 100+(50*waves)
             last_wave_time = time.time()
             enemies_left = 10
             if waves == 1:
@@ -378,26 +466,46 @@ def main():
             mouseDown = True
             if clickposy >= 530:
                 if mouseDown: #boolean
-                    if money >=500:
+                    if money >=750:
                             if clickposy >= 540 and clickposy <= 560:
-                                if clickposx >= 90 and clickposx <= 110:
+                                if clickposx >= 85 and clickposx <= 115:
                                     image1 = pygame.image.load('TowerDef_BeamTurret - Copy - Copy.png')
                                     font = pygame.font.SysFont("Arial",30)
 
                                     text = font.render("click on desired position, or back to the shop to deselect",True,(0,0,0))
                                     buffer = time.time() + .2
-                                    placingTower = True
+                                    placingTower1 = True
+                    if money >= 500:
+                        if clickposy >= 540 and clickposy <= 560:
+                                    if clickposx >=385 and clickposx <=415:
+                                        image2 = pygame.image.load('TowerDef_MinigunTurret.png')
+                                        font = pygame.font.SysFont("Arial", 30)
 
-        if placingTower:
+                                        text = font.render("click on desired position, or back to the shop to deselect",
+                                                       True, (0, 0, 0))
+                                        buffer = time.time() + .2
+                                        placingTower2 = True
+
+        if placingTower1:
             pygame.draw.circle(screen, (155, 155, 155), pygame.mouse.get_pos(), 20)
             x,y = pygame.mouse.get_pos()
             screen.blit(image1, (x-image1.get_width()/2,y-image1.get_height()/2))
             screen.blit(text, (250, 0))
             mouseDown = updateMouse()
             if mouseDown and buffer <= time.time():
-                placingTower = False
+                placingTower1 = False
                 listT.placeBeam(x,y)
-                money-=500
+                money-=750
+        if placingTower2:
+            pygame.draw.circle(screen, (155, 155, 155), pygame.mouse.get_pos(), 20)
+            x, y = pygame.mouse.get_pos()
+            screen.blit(image2, (x - image2.get_width() / 2, y - image2.get_height() / 2))
+            screen.blit(text, (250, 0))
+            mouseDown = updateMouse()
+            if mouseDown and buffer <= time.time():
+                placingTower2 = False
+                listT.placeMinigun(x, y)
+                money -= 500
 
                 #append beamTurret here
 
