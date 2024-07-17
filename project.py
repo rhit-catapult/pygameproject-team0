@@ -100,6 +100,7 @@ class beamTurret:
         self.newAngle = self.angle
         self.placed = False
         self.sound = pygame.mixer.Sound('laser-zap-90575.mp3')
+        self.buffer = 0
     def draw(self):
         pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
         self.screen.blit(self.image,(self.x-(self.image.get_width()/2), self.y-(self.image.get_height()/2)))
@@ -122,7 +123,9 @@ class beamTurret:
                              (self.y + (math.sin(self.angle) * 300))
                          ),
                          10)
-        self.sound.play(1,666)
+        if self.buffer <= time.time():
+            self.sound.play(1,666)
+            self.buffer = time.time()+.666
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
         self.validTarget.clear()
         for enemy in active:
@@ -178,7 +181,7 @@ class minigunTurret:
         self.newAngle = self.angle
         self.placed = False
         self.buffer = 0
-        self.sound = pygame.mixer.Sound('bullet-hit-metal-84818.mp3')
+        self.sound = pygame.mixer.Sound('bullet.mp3')
 
     def draw(self):
         pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
@@ -191,13 +194,14 @@ class minigunTurret:
     def shoot(self):
         if self.buffer <= time.time():
             self.buffer = time.time()+.1
+            self.sound.play(1,200)
             pygame.draw.line (self.screen,(255,255,0), (self.x, self.y),
                           (
                               (self.targetx+random.randint(-20,20)),
                               (self.targety+random.randint(-20,20))
                           ),
                           5)
-            self.sound.play(1)
+
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
         self.validTarget.clear()
         for enemy in active:
@@ -503,6 +507,8 @@ def main():
     placingTower3=False
     lives = 500
     money = 750
+    selectSound = pygame.mixer.Sound('clicking-interface-select-201946.mp3')
+    placeSound = pygame.mixer.Sound('place_object.mp3')
     targetpurchase =0
     UI = ui(screen)
     towers = []
@@ -559,6 +565,7 @@ def main():
             for light1 in listT.lightningTurrets:
                 if distance((enemy1.x, enemy1.y),(light1.x,light1.y))<300:
                     if light1.hitEnemy(enemy1):
+                        selectSound.play(10)
                         money += enemy1.damage(light1.getDamage()) / waves
             if enemy1.offscreen():
                 activeEnemies.remove(enemy1)
@@ -696,9 +703,11 @@ def main():
         UI.draw(lives,money,waves)
         if event.type == pygame.MOUSEBUTTONDOWN:
             clickposx,clickposy = event.pos
+
             mouseDown = True
             if clickposy >= 530:
                 if mouseDown: #boolean
+                    selectSound.play(1)
                     if money >=750:
                             if clickposy >= 540 and clickposy <= 560:
                                 if clickposx >= 85 and clickposx <= 115:
@@ -760,6 +769,7 @@ def main():
                     if a == 0:
                         listT.placeBeam(x,y)
                         money-=750
+                        placeSound.play(1)
         if placingTower2:
             pygame.draw.circle(screen, (155, 155, 155), pygame.mouse.get_pos(), 20)
             x, y = pygame.mouse.get_pos()
@@ -793,6 +803,7 @@ def main():
                     if a == 0:
                         listT.placeMinigun(x, y)
                         money -= 500
+                        placeSound.play(1)
         if placingTower3:
             pygame.draw.circle(screen, (155, 155, 155), pygame.mouse.get_pos(), 20)
             x, y = pygame.mouse.get_pos()
@@ -826,6 +837,7 @@ def main():
                         if a == 0:
                             listT.placeLightning(x, y)
                             money -= 650
+                        placeSound.play(1)
 
                 #append beamTurret here
 
