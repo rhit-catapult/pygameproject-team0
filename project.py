@@ -8,13 +8,13 @@ import math
 
         # TODO: Add your project code
 
-        # TODO: Add the map, and UI
+        # Done: Add the map, and UI
 
         # DONE: LEARN TO TURN
 
-        # TODO: Add enemies, towers, projectiles
+        # Done: Add enemies, towers
 
-        # TODO: Add lives, money, waves
+        # Done: Add lives, money, waves
 
 
 class enemy:
@@ -67,9 +67,12 @@ class enemy:
         if self.health <=0:
             self.dist = -1
             return True
+    def deathCheck2(self):
+        if self.health <=0:
+            return self.health
 
     def draw(self):
-        pygame.draw.circle(self.screen, (100, 100, 100), (self.x, self.y),
+        pygame.draw.circle(self.screen, (self.color), (self.x, self.y),
                  25)
     def getDist(self):
         return self.dist
@@ -104,6 +107,12 @@ class beamTurret:
                               (self.y + (math.sin(self.angle)*300))
                           ),
                           20)
+        pygame.draw.line(self.screen, (255, 200, 200), (self.x, self.y),
+                         (
+                             (self.x + (math.cos(self.angle) * 300)),
+                             (self.y + (math.sin(self.angle) * 300))
+                         ),
+                         10)
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
         self.validTarget.clear()
         for enemy in active:
@@ -203,8 +212,8 @@ class minigunTurret:
             return True
     def hitEnemy(self,enemy):
         if self.buffer<=time.time():
-            if enemy.x >= self.targetx-5 and enemy.x <= self.targetx+5:
-                if enemy.y >= self.targety - 5 and enemy.y <= self.targety + 5:
+            if enemy.x >= self.targetx-7 and enemy.x <= self.targetx+7:
+                if enemy.y >= self.targety - 7 and enemy.y <= self.targety + 7:
                     return True
     def touchingMouse(self):
         hitbox = pygame.draw.circle(self.screen,(155,155,155),(self.x, self.y),20)
@@ -246,11 +255,11 @@ class waveSpawn:
         self.wavespawn = []
         self.state = state
         self.lastspawntime = 0
-    def spawns(self,tim, health):
+    def spawns(self,tim, health,speed,color):
         time.time()
         f = 0
         if time.time() - self.lastspawntime >= tim:
-            Enemy = enemy(self.screen, (255, 255, 0), 5, 200, 50, 5, 0, 50, 2)
+            Enemy = enemy(self.screen, color, 5, 200, 50, 5, 0, 50, speed)
             self.wavespawn.append(Enemy)
             Enemy.health = health
             self.lastspawntime = time.time()
@@ -274,7 +283,7 @@ class ui:
         self.image1 = pygame.image.load('TowerDef_BeamTurret.png')
         self.image2 = pygame.image.load('TowerDef_MinigunTurret.png')
     def draw(self,lives,money,wave):
-        pygame.draw.rect(self.screen, (0,0,0),(0,525,1080,150))
+        pygame.draw.rect(self.screen, (50,50,50),(0,525,1080,150))
         pygame.draw.circle(self.screen,(125,125,125),(self.buy1x,self.buyy),24)
         pygame.draw.circle(self.screen, (125, 125, 125), (self.buy2x, self.buyy), 24)
         self.screen.blit(self.image1,(self.buy1x-(self.image1.get_width()/2), self.buyy-(self.image1.get_height()/2)))
@@ -410,6 +419,7 @@ def main():
 
             if enemy1.deathCheck():
                 activeEnemies.remove(enemy1)
+                money-=enemy1.deathCheck2()
             enemy1.draw()
         key = pygame.key.get_pressed()
         #test.touchingMouse()
@@ -439,26 +449,27 @@ def main():
                 enemies_left = 20
 
         if waves == 1 and enemies_left > 0:
-            if spawns.spawns(2, 10):
+            if spawns.spawns(2, 10,4,(20,200,20)):
                 enemies_left -= 1
 
         if waves == 2 and enemies_left > 0:
-            if spawns.spawns(2, 30):
+            if spawns.spawns(2, 7,7,(20,255,100)):
                 enemies_left -= 1
 
         if waves == 3 and enemies_left > 0:
-            if spawns.spawns(1, 50):
+            if spawns.spawns(1, 50,2,(20,100,20)):
                 enemies_left -= 1
 
         if waves == 4 and enemies_left > 0:
-            if spawns.spawns(1, 65):
+            if spawns.spawns(1, 65,4,(20,200,20)):
                 enemies_left -= 1
 
         if waves == 5 and enemies_left > 0:
-            if spawns.spawns(.8, 80):
+            if spawns.spawns(.8, 80,4,(20,200,20)):
                 enemies_left -= 1
 
-
+        if lives <= 0:
+            break
 
         UI.draw(lives,money,waves)
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -494,8 +505,9 @@ def main():
             mouseDown = updateMouse()
             if mouseDown and buffer <= time.time():
                 placingTower1 = False
-                listT.placeBeam(x,y)
-                money-=750
+                if y <= 525:
+                    listT.placeBeam(x,y)
+                    money-=750
         if placingTower2:
             pygame.draw.circle(screen, (155, 155, 155), pygame.mouse.get_pos(), 20)
             x, y = pygame.mouse.get_pos()
@@ -504,8 +516,9 @@ def main():
             mouseDown = updateMouse()
             if mouseDown and buffer <= time.time():
                 placingTower2 = False
-                listT.placeMinigun(x, y)
-                money -= 500
+                if y <=525:
+                    listT.placeMinigun(x, y)
+                    money -= 500
 
                 #append beamTurret here
 
