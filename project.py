@@ -19,7 +19,7 @@ class enemy:
         self.health = health
         self.maxHealth = health
         self.speed = speed
-        self.slowedSpeed = speed/2
+        self.slowedSpeed = (speed*2)/3
         self.name = random.randint(0,500)
         self.slowed = False
 
