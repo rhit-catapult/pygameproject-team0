@@ -656,7 +656,7 @@ def main():
                 lives -= enemy1.offscreen2()
 
             if enemy1.deathCheck():
-                money+=enemy1.deathCheck2()
+                money+=enemy1.deathCheck2()/waves
                 activeEnemies.remove(enemy1)
 
             enemy1.draw()
@@ -1027,8 +1027,3 @@ def main():
 
 
 main()
-
-
-
-
-
