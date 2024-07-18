@@ -850,7 +850,7 @@ def main():
                                     image1 = pygame.image.load('TowerDef_BeamTurret - Copy - Copy.png')
                                     font = pygame.font.SysFont("Arial",30)
 
-                                    text = font.render("click on desired position, or back to the shop to deselect",True,(0,0,0))
+                                    text = font.render("Fires a continuous beam that damages each enemy within it.",True,(0,0,0))
                                     buffer = time.time() + .2
                                     placingTower1 = True
                     if money >= 500:
@@ -859,7 +859,7 @@ def main():
                                         image2 = pygame.image.load('TowerDef_MinigunTurret.png')
                                         font = pygame.font.SysFont("Arial", 30)
 
-                                        text = font.render("click on desired position, or back to the shop to deselect",
+                                        text = font.render("Rapidly damage the furthest enemy.",
                                                        True, (0, 0, 0))
                                         buffer = time.time() + .2
                                         placingTower2 = True
@@ -869,7 +869,7 @@ def main():
                                 image3 = pygame.image.load('TowerDef_LightningReady.png')
                                 font = pygame.font.SysFont("Arial", 30)
 
-                                text = font.render("click on desired position, or back to the shop to deselect",
+                                text = font.render("Heavily damages the healthiest enemy once a second.",
                                                    True, (0, 0, 0))
                                 buffer = time.time() + .2
                                 placingTower3 = True
@@ -879,11 +879,14 @@ def main():
                                 image4 = pygame.image.load('TowerDef_StaticTurret.png')
                                 font = pygame.font.SysFont("Arial", 30)
 
-                                text = font.render("click on desired position, or back to the shop to deselect",
+                                text = font.render("Slows each enemy within its range.",
                                                    True, (0, 0, 0))
                                 buffer = time.time() + .2
                                 placingTower4 = True
-
+        if placingTower1 or placingTower3 or placingTower2 or placingTower4:
+            sfont = pygame.font.SysFont("Arial",30)
+            text1 = sfont.render("Click to place the tower, or back in the shop to not place it.",True,(0,0,0))
+            screen.blit(text1,(250,60))
         if placingTower1:
             pygame.draw.circle(screen, (155, 155, 155), pygame.mouse.get_pos(), 20)
             x,y = pygame.mouse.get_pos()
