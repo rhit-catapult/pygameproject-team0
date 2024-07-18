@@ -826,7 +826,7 @@ def main():
 
         if lives <= 0:
             break
-        if waves>20:
+        if waves>20 and enemies_left <=0:
             daFont = pygame.font.SysFont("Arial",50)
             text = daFont.render("CONGRATULATIONS, VICTORY IS YOURS",True,(225,225,225))
             pygame.draw.rect(screen, (25, 25, 25), (540-text.get_width()/2-5, 300-text.get_height()/2-5, text.get_width()+10, text.get_height()+10))
