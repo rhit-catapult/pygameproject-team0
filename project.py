@@ -809,7 +809,7 @@ def main():
                 enemies_left -= 1
 
         if waves == 17 and enemies_left > 0:
-            if spawns.spawns(.8, 580, 4, (50, 0, 225)):
+            if spawns.spawns(.8, 590, 4, (50, 0, 225)):
                 enemies_left -= 1
 
         if waves == 18 and enemies_left > 0:
@@ -821,7 +821,7 @@ def main():
                 enemies_left -= 1
 
         if waves == 20 and enemies_left > 0:
-            if spawns.spawns(1, 8000, 1.9, (0, 0, 0)):
+            if spawns.spawns(1, 8150, 1.9, (0, 0, 0)):
                 enemies_left -= 1
 
         if lives <= 0:
