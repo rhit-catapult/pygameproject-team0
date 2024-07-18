@@ -349,7 +349,7 @@ class lightningTurret:
         clickposx,clickposy = pygame.mouse.get_pos()
         if  hitbox.collidepoint(clickposx,clickposy):
             surface = pygame.Surface((600, 600), pygame.SRCALPHA)
-            pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 250)
+            pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 300)
             self.screen.blit(surface,(self.x-300,self.y-300))
 
 class staticTurret:
@@ -826,6 +826,15 @@ def main():
 
         if lives <= 0:
             break
+        if waves>20:
+            daFont = pygame.font.SysFont("Arial",50)
+            text = daFont.render("CONGRATULATIONS, VICTORY IS YOURS",True,(225,225,225))
+            pygame.draw.rect(screen, (25, 25, 25), (540-text.get_width()/2-5, 300-text.get_height()/2-5, text.get_width()+10, text.get_height()+10))
+            screen.blit(text,(540-text.get_width()/2,300-text.get_height()/2))
+#        if key[pygame.K_UP]:
+#            waves =21
+#            enemies_left = 0
+
 
         UI.draw(lives,money,waves)
         if event.type == pygame.MOUSEBUTTONDOWN:
@@ -955,9 +964,8 @@ def main():
             screen.blit(image3, (x - image3.get_width() / 2, y - image3.get_height() / 2))
             screen.blit(text, (250, 0))
             surface = pygame.Surface((600, 600), pygame.SRCALPHA)
-            pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 250)
+            pygame.draw.circle(surface, (200, 200, 200, 100), (300, 300), 300)
             screen.blit(surface, (x - 300, y - 300))
-
             a = 0
             mouseDown = updateMouse()
             if mouseDown and buffer <= time.time():
