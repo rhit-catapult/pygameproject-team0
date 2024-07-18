@@ -301,6 +301,14 @@ class lightningTurret:
                                      (self.targety + random.randint(-20, 20))
                                  ),
                                  5)
+                g = random.randint(0, 255)
+                pygame.draw.line(self.screen, (g, g, 255), (self.x, self.y),
+                                 (
+                                     (self.targetx + random.randint(-20, 20)),
+                                     (self.targety + random.randint(-20, 20))
+                                 ),
+                                 5)
+                g = random.randint(0, 255)
             self.sound.play(1,800)
 
     def targetEnemy(self, active):   #TARGET FIRST ENEMY
